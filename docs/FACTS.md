@@ -69,3 +69,19 @@ A published page is one HTML file plus supporting files; each file at most 16 MB
 | Run time | A clean replay of the CI audio job (fresh virtualenv, empty sample cache, 4 cores): pip install 30 s, sample fetch 7 s, unit tests 12 s, mutation check 24 s, both masters 266 s (Ode stems 40.6 s and mix 78.1 s, Turca stems 38.2 s and mix 59.1 s), Ear witness 74 s, its tests 52 s; the masters came out with the receipt's sha256 | C, a log of that replay (not committed) |
 | Licences of the audio tools | pedalboard 0.9.26 and DawDreamer 0.9.0 are GPL-3.0 (their package metadata); our code is MIT and does not contain theirs | C, package metadata; what that means for the sound is not settled here (NOTICE.md) |
 | How it sounds | Nobody has listened; every level was set by meters | S |
+
+## The worlds (P3, see P3-WORLDS.md)
+
+| Fact | Value | Grade, source |
+|---|---|---|
+| Worlds | Ode 3.10 MB, 11 draw calls, 22,284 triangles, 5 shaders, 226 KB of event textures, 12 shots. Turca 3.67 MB, 30 draw calls, 60,686 triangles, 11 shaders, 160 KB of event textures, 56 shots. The spec's budgets are 150 draw calls and 1.5 million triangles | C, `build/worlds/*.report.json` |
+| The page | 30.8 MB in 118 files: X_ITE 8.5 MB (106 files), worlds 6.8 MB, masters as AAC `.mp4` 14.7 MB, tables 0.8 MB, scripts 0.05 MB | C, `build/page/manifest.json` |
+| Tapestry | 256 by 384 cells, 98,304; separations indigo, silver, gold, ivory, crimson; every row of the first four has an owner, crimson has an owner in 204 of 384 rows and 48% of its cells are woven | C, `test_world_ode.py` |
+| Card chain | 384 cards at 0.12 m a beat, one hole for each of the 3,101 notes, 16 lanes | C, `test_world_ode.py` |
+| Barrel | 1,613 pins for 2,810 written notes (a repeat reuses its pin), 51 teeth (MIDI 38 to 88), 60 tiles (12 sectors by 5 rings), 12 band changes all in silence, 2 silent crossings | C, `test_world_turca.py` |
+| Event times | 24-bit fractions of the scene's length: about 13 microseconds over 216 s | C, `test_worldlib.py` |
+| X_ITE 16.5.1 SAI | `scene.routes` lists ROUTEs; `addFieldCallback(key, field, fn)` takes the key first and `getField` is deprecated; `Viewpoint` has no position or orientation offsets; `PixelTexture.image` reads back as width, height, components and one 0xRRGGBBAA integer a pixel; the Clock ships disabled | C, `witnesses/behaviour.mjs`, `page/driver.js` |
+| X_ITE picking | On the GPU: every shape with `pointerEvents` true hides a TouchSensor's shape behind it, faint or not; `Shape.pointerEvents` is in the 4.1 schema only | C, `witnesses/hover_test.mjs` before and after; the 4.1 schema |
+| Tests | 69 generator tests, Behaviour 16, page 20, hover 8, Host 10 | C, `docs/P3-WORLDS.md` |
+| Frame time | About 0.6 s a frame in software GL; no frame rate is quoted | C for the figure, a real GPU is S |
+| How it runs on a real GPU, how it sounds | Not known | S |

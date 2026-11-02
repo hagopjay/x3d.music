@@ -88,10 +88,23 @@ Receipts: `witnesses/receipts.py check receipts/p0-probes.json` rebuilds the pro
 
 No paid call was made in P0. If the project owner enables the newer API for the project, E2 flips and the first-choice model can be tried again with the shape in E4 (D-006).
 
+## F. The worlds in X_ITE 16.5.1 (P3, headless Chrome, software GL)
+
+| Id | Claim | Observed | Grade |
+|---|---|---|---|
+| F1 | A page can read a world's ROUTEs and watch every source field through SAI | Yes: `scene.routes` lists `sourceNode`, `sourceField`, `destinationNode`, `destinationField`; `node.addFieldCallback(key, field, fn)` takes the key first, and `getField` is deprecated (a console warning) | C, Behaviour witness |
+| F2 | A `Viewpoint` can be offset from the page | No: it has no `positionOffset` or `orientationOffset`. A second viewpoint (`Free`) that the page places and binds works, and binding `Cam` again returns to the directed track | C, page test |
+| F3 | A page can read a `PixelTexture` back | Yes: `image` gives `width`, `height`, `comp` and an `array` of one 0xRRGGBBAA integer a pixel, so hover reads the tapestry's cells from the world itself | C, hover test |
+| F4 | A TouchSensor reports a hit through any shape in front of it | No: X_ITE picks on the GPU, so every shape with `pointerEvents` true hides it. With the Ode's light shafts in the scene `HoverTap` reported nothing; with them removed it reported hits on the tapestry plane (z = -23.8). Setting `Shape.pointerEvents = false` by SAI on the effect shapes lets the pointer through. The field is in the 4.1 schema only | C, `witnesses/hover_test.mjs`, a scratch run before and after, the 4.1 schema |
+| F5 | One `<x3d-canvas>` can change worlds | Yes: `X3D.getBrowser(el).loadURL(new X3D.MFString(url))`; the page keeps one canvas and one rig | C, page test |
+| F6 | X_ITE asks for nothing the host would refuse | With `splashScreen`, `contextMenu`, `notifications` and `timings` set to "false" the stepped Host run made 14 requests, all answered 200. Three harmless cases remain: the cancelled world request after a 200 (`net::ERR_ABORTED`), its interface font if the attributes are left on, and its tangent generator's WebAssembly, which will not compile under the strict policy copy and which the page does not use | C, Host witness |
+| F7 | The Web Audio clock reads in headless Chrome | Yes: `getOutputTimestamp` gives a usable pair; the context reported 44.1 kHz, a base latency of 0.010 s and an output latency of 0.032 s. The master decodes from the `.mp4` and the page's clock advanced 7.835 s while the audio clock advanced 7.835 s | C in headless Chrome, S on real devices |
+| F8 | A frame costs | About 0.6 s in software GL at 1280 by 720, so no frame rate is quoted | C for the figure |
+
 ## Still S after P0
 
 - Decode and playback in Safari and Firefox; audio latency on real devices.
 - Frame rate on a real GPU (Fps witness, cloud GPU).
 - The real host's policy: WebAssembly compile, blob workers, AAC decode, WebGL2. The first stop-and-show page carries a self-test that reports them (D-004).
-- X_ITE draw-call, triangle and splat budgets at scale (150 draw calls, 1.5 M triangles, 1.5 M splats per world): measured in P3 and P4.
+- X_ITE splat budgets at scale (1.5 M splats per world): P4. Draw calls and triangles were measured in P3 and both worlds are far under (`P3-WORLDS.md`).
 - The output of the fallback video family.

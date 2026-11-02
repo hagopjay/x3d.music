@@ -1,7 +1,8 @@
 name: ci
 
 # Witnesses that run on every commit: the leak sweep and unit tests (sweep job); the Score witness and the score receipt (score job); the audio unit tests, the mutation spot-check, a fresh render of both masters and the Ear witness (audio job);
-# Grammar, Meaning, Traps, Receipts and the browser probes (worlds job). The rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
+# Grammar, Meaning, Traps, Receipts and the browser probes (worlds job); the world generators' tests, the gate on both worlds, Behaviour, Eyes, the page and hover tests and the Host witness (page job, after audio).
+# The rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
 
 # Pull requests are checked once (the merge result); main is checked after every merge. A branch push alone does not start a second, duplicate run.
 on:
@@ -84,6 +85,13 @@ jobs:
         run: python3 -I audio/mutants.py
       - name: Render both masters from the score cards
         run: python3 -I audio/render.py all
+      - name: Encode the masters for the page (AAC in .mp4, the form the host serves)
+        run: python3 -I page/build_page.py --audio-only
+      - uses: actions/upload-artifact@v4
+        with:
+          name: page-audio
+          path: build/page/audio
+          retention-days: 3
       - name: Ear witness (two loudness tools, true peak, range, phase, onsets against the card, stem sum, sub band, ring-out)
         run: python3 -I witnesses/ear.py --piece all --out build/runs/ear.json
       - name: The Ear witness's own tests (damaged masters must turn it red; the real piano stem is read now that it exists)
@@ -154,4 +162,93 @@ jobs:
         with:
           name: p0-run
           path: build/runs
+          retention-days: 14
+
+  page:
+    # P3: both worlds generated from the score cards, tested, validated, built into the page with the masters the audio job rendered, and played in headless Chrome under the strict policy copy.
+    # The worlds are judged by what the witnesses find, not by their hashes (the generators use numpy, which may differ in the last bit on another CPU); the hashes are printed so a match can be seen.
+    needs: audio
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - id: pins
+        name: Read the pins
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json
+          p = json.load(open('tools/pins.json'))
+          print('validator=' + p['validator']['commit'])
+          print('gate=' + p['gate']['commit'])
+          EOF
+      - uses: actions/checkout@v4
+        with:
+          repository: hagopjay/x3d_mcp
+          ref: ${{ steps.pins.outputs.validator }}
+          path: .pins/x3d_mcp
+      - uses: actions/checkout@v4
+        with:
+          repository: hagopjay/x3d.onto
+          ref: ${{ steps.pins.outputs.gate }}
+          path: .pins/x3d.onto
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -r requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Fetch the pinned X_ITE (sha512 checked)
+        run: python3 -I tools/fetch_xite.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: page-audio
+          path: build/page/audio
+      - name: Generate both worlds from the score cards
+        run: |
+          python3 -I gen/world_ode.py
+          python3 -I gen/world_turca.py
+          sha256sum build/worlds/ode.x3d build/worlds/turca.x3d
+      - name: Unit tests (meshes, shared world code, the Ode world, the Turca world)
+        run: python3 -I -m pytest -q gen
+      - name: Grammar, Meaning, Traps on both worlds (pinned validator and gate, plus the five Loomsong rules)
+        env:
+          X3D_MCP: ${{ github.workspace }}/.pins/x3d_mcp
+          LOOM_GATE: ${{ github.workspace }}/.pins/x3d.onto/gobbler-demiurge/tools
+        run: python3 -I witnesses/gate_all.py build/worlds --out build/runs/gate.json
+      - name: Build the page (the worlds, the cards' tables, the scripts, X_ITE as the page's own files, the masters as .mp4)
+        run: python3 -I page/build_page.py --no-audio
+      - name: Behaviour, Ode (loads, shaders compile, every ROUTE fires and moves, the bus is exact)
+        if: ${{ !cancelled() }}
+        run: node witnesses/behaviour.mjs --world build/worlds/ode.x3d
+      - name: Behaviour, Turca
+        if: ${{ !cancelled() }}
+        run: node witnesses/behaviour.mjs --world build/worlds/turca.x3d
+      - name: Eyes, Ode (twelve stills, none black, none blown out)
+        if: ${{ !cancelled() }}
+        run: node witnesses/eyes.mjs --world build/worlds/ode.x3d --out build/stills/eyes-ode
+      - name: Eyes, Turca
+        if: ${{ !cancelled() }}
+        run: node witnesses/eyes.mjs --world build/worlds/turca.x3d --out build/stills/eyes-turca
+      - name: Page tests (modes, keys, seek by bar, the card's own arithmetic, the camera rig, the end card)
+        if: ${{ !cancelled() }}
+        run: node witnesses/page_test.mjs
+      - name: Hover tests (the card names the note under the pointer, checked against the score card)
+        if: ${{ !cancelled() }}
+        run: node witnesses/hover_test.mjs
+      - name: Host witness (both pieces start to end under the strict policy copy, 0 blocked requests, the real audio clock runs)
+        if: ${{ !cancelled() }}
+        run: node witnesses/host.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p3-worlds-run
+          path: |
+            build/runs
+            build/stills/eyes-ode
+            build/stills/eyes-turca
+            build/worlds/*.report.json
           retention-days: 14

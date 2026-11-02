@@ -93,3 +93,42 @@ Drums are read with a 128-sample window (2.7 ms), the piano with 1,024 (21 ms); 
 P1's receipt listed the notated sources. P2 added the arrangement layers (`score/arrange_lib.py`, `arrange_turca.py`, `arrange_ode.py`), which change the card bytes, so they are now inputs of `receipts/p1-scores.json`; the receipt carries a note saying why it was rewritten. The composer notes did not change, and the Score witness shows it (S1: pitch, onset and duration equal the source, 0 missing and 0 extra).
 *Why:* a receipt that does not name the code that makes the bytes cannot see drift in that code. *Undo:* none needed.
 
+## D-019 (2 Nov 2026) The page owns the clock; a world has two buses and no Script nodes; every event is a texel
+
+X_ITE has no `browser.currentTime`, so the page decodes the master into a Web Audio buffer, plays from it, reads the heard time from `getOutputTimestamp` and sets `FractionBus.set_fraction` each frame. A ROUTE carries `SecondsBus` to every shader's `u_time`. A thing that can light (a thread's row, a pin, a tooth, a tile, a chord) is a row of an event texture: sorted events of on-time, off-time, three bytes and the card's note index, with times as 24-bit fractions of the scene's length (about 13 microseconds over 216 s). The witnesses use `?clock=manual` so a piece can be walked without waiting for it.
+*Why:* the picture follows the audio the page really plays, to the sample; a world with no scripts validates anywhere and runs under the host's policy; a shader needs `u_time` and its table and nothing else. *Undo:* not cheap; the buses and tables are the base of `gen/worldlib.py`.
+
+## D-020 (2 Nov 2026) The page's camera is a second viewpoint, `Free`, not an offset on the directed one
+
+X_ITE 16.5.1's `Viewpoint` has no `positionOffset` or `orientationOffset`. The directed camera (`Cam`) is driven by the shot list. When the viewer grabs, the page copies the pose into `Free`, binds it and drives it; after four idle seconds it eases back and binds `Cam`. The world never binds `Free` itself.
+*Why:* the directed track keeps running underneath, so the return lands where the piece is now. *Undo:* none needed.
+
+## D-021 (2 Nov 2026) A tapestry cell belongs to one note of its row, picked by an integer hash the shader and the page share
+
+Row *r* of a statement is woven at `t0 + (r + 0.5) / 384 * (t1 - t0)`. The candidates are the notes of that statement's families sounding then, and the owner is `hash2u(col, row) mod n`, in 32-bit wrap-around arithmetic, the same function in `tapestry_fs.glsl`, `world_ode.py` and `page/hover.js` (eight vectors are written into the map and checked by a unit test and by the hover test). A row with no sounding note stays bare linen. The picture itself is a procedural stand-in (`gen/picture_ode.py`), until the generated picture of P4.
+*Why:* a float hash differs between GPUs and an integer one does not, so the page can name the note a thread belongs to without asking the GPU. *Undo:* change the three copies together.
+
+## D-022 (2 Nov 2026) Hover reads the worlds' own TouchSensors, and effect shapes let the pointer through by SAI
+
+Learn mode names the note under the pointer through four TouchSensors (`HoverTap`, `HoverBelt`, `HoverPins`, `HoverTiles`). The page listens to `hitPoint_changed`, turns the hit into a cell, hole, pin or tile and looks it up in the card's tables (`data/<piece>.json`). X_ITE picks on the GPU, so any shape in the way hides a sensor's shape, however faint: the Ode's light shafts hid the whole tapestry (C: with them removed the sensor reported hits on the tapestry plane). `Shape.pointerEvents` lets the pointer through, but it is X3D 4.1 and the worlds are 4.0, so the worlds name their effect shapes (`Fx_Shafts`, `Fx_Halo`, `Fx_Flares`) and list them in the map, and the page sets the field by SAI.
+*Why:* the worlds stay valid 4.0 files and nothing in a file depends on the page. *Undo:* write `pointerEvents='false'` on those shapes and declare version 4.1, if the validator and the host take it.
+
+## D-023 (2 Nov 2026) CI judges the worlds by the witnesses, not by their hashes
+
+`receipts/p3-worlds.json` records the sha256 of both worlds, their maps and their reports and says they hold on the machine class that made them (a rebuild gave the same bytes six times here). The generators use numpy and Pillow, which may differ in the last bit on another CPU (S); this machine has numpy 2.5.3 and the pin is 2.5.4. The `page` job prints the worlds' sha256 so a match with a runner can be seen.
+*Why:* as D-016, a receipt that goes red on a different CPU says nothing about the worlds. *Undo:* once a runner's hashes match, the job can also run `receipts.py check receipts/p3-worlds.json`.
+
+## D-024 (2 Nov 2026) Some failures are harmless and named; the gate's int-literal warnings stay a count
+
+The Host witness counts as blocked any request the server refused or the browser cut, any policy violation, and any file asked for that is not in the published set, except three named cases: X_ITE cancels the world request after the server has answered 200 (`net::ERR_ABORTED`, classified by the server's own log); X_ITE's interface font is refused by the policy copy; its tangent generator's WebAssembly will not compile under it. The page uses none of the three (the `<x3d-canvas>` attributes `splashScreen`, `contextMenu`, `notifications` and `timings` are set to "false", which is why no font is asked for). The gate's `glsl-int-literal` rule is a scope-blind heuristic (it takes a name such as `n`, `i`, `base` or `m` for a float wherever any function declares it so) and warns 83 times on the Ode and 163 on the Turca; every shader compiles and links in X_ITE, whose GLSL ES 3.00 has no implicit int-to-float conversion, so none is a real error (C for the compile, L for the cause). The counts are kept in `build/runs/gate.json`.
+*Why:* a witness that filters nothing is noise and one that filters silently is worse. *Undo:* `harmless` in `witnesses/harness.mjs`; write the literals as floats to silence the rule.
+
+## D-025 (2 Nov 2026) The barrel changes band only in silence, and two silent crossings are allowed and named
+
+The Turca's barrel has one band per section and slides to the next at each section change; a test holds that no note sounds during a slide (12 slides, 60 to 320 ms). A pin meets a tooth with no note under it twice in the whole piece, at 174.583 and 174.643 s: the pickup graces of the second ending, whose pins sit on band I, which the first statement of that section turns past as well. The test allows at most three and names them.
+*Why:* a pin that is a written head cannot also be missing from the barrel, and a second set of pins for the graces would break the rule that pins are exactly the written heads. *Undo:* none needed.
+
+## D-026 (2 Nov 2026) The Ode's words are laid by four-bar phrase, as a reading aid
+
+The score card has no words. The page shows the eight lines of Schiller's stanza with an English gloss, on the four-bar phrases of each statement: the first statement lines 1 to 4, the second 5 to 8, the third 1 to 4 then 7 and 8, the fourth 5 to 8 then 1 and 2, the coda 7 and 8. It is not Beethoven's underlay, who repeats and reorders words; the page's credits say so.
+*Why:* the page needs a line to show, and claiming a true underlay would be a false claim. *Undo:* `LINES` in `page/build_page.py`.

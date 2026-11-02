@@ -1,0 +1,261 @@
+{
+ "schema": "loomsong.receipt/1",
+ "command": "python3 -I gen/world_ode.py && python3 -I gen/world_turca.py",
+ "SOURCE_DATE_EPOCH": "1793491200",
+ "python": "3.13",
+ "inputs": [
+  {
+   "path": "gen/worldlib.py",
+   "sha256": "d17d6709e2e3d2dfe55d0b0561e1e75c217476d584a628c4b1295d64ecfccd8f",
+   "bytes": 20606
+  },
+  {
+   "path": "gen/meshlib.py",
+   "sha256": "40446625f93601f9fe3d1bf0e607758c4197fea57aae86424f717ad6214c71a0",
+   "bytes": 16213
+  },
+  {
+   "path": "gen/x3dw.py",
+   "sha256": "0f3c98b7dd73d809c6af361e9cc440e20eb69e26c7e850e22291fca5b8b54f4d",
+   "bytes": 5101
+  },
+  {
+   "path": "gen/world_ode.py",
+   "sha256": "67d1dbb53a0917cb336abd682777c8477b79d5993da954690e64796d8e981813",
+   "bytes": 30055
+  },
+  {
+   "path": "gen/world_turca.py",
+   "sha256": "95a5fd828305bd11c3c39daf3d8856f6bb38a58937de9b6701d63ccddac17dd7",
+   "bytes": 35433
+  },
+  {
+   "path": "gen/picture_ode.py",
+   "sha256": "2f76045bb77ac80e570f99a2fa6383c6c8e5d8575d27792ab89e5480b84c641e",
+   "bytes": 9112
+  },
+  {
+   "path": "score/cardlib.py",
+   "sha256": "bd09b34aa08d6404fdd2811e04c1dca162d4d00e5e0ac9f22aed616f8ecb360d",
+   "bytes": 5157
+  },
+  {
+   "path": "score/ode.score.json",
+   "sha256": "60427b279a467164debaa2a886c4fcd08e8f7b742df456dfdbd697228d39a73b",
+   "bytes": 695128
+  },
+  {
+   "path": "score/turca.score.json",
+   "sha256": "b6eeb3115b68f707d0e5ec224a923ba0b875aa24820e0668e2a8988cc2ac62e7",
+   "bytes": 1465431
+  },
+  {
+   "path": "requirements.txt",
+   "sha256": "016cb489466f57f86023d1cc001aa5726ba4883f1fe5a226ca096dafea0a75c2",
+   "bytes": 451
+  },
+  {
+   "path": "gen/shaders/cards_fs.glsl",
+   "sha256": "10cad8702107661490e2277a94af511bae8d135474bcf3bf827e1c1a20e3f1f5",
+   "bytes": 1746
+  },
+  {
+   "path": "gen/shaders/cards_vs.glsl",
+   "sha256": "d08fca594dd33b495003164bf6142b5868b22482e9c1235f16e2ea3be7724ad6",
+   "bytes": 574
+  },
+  {
+   "path": "gen/shaders/comb_fs.glsl",
+   "sha256": "e00f7eb052981cc8ddbe27c9dde060ad4eb3c800494189db1a3b2f85aea16d32",
+   "bytes": 594
+  },
+  {
+   "path": "gen/shaders/comb_vs.glsl",
+   "sha256": "ce2829dd1255403c0b73449b61c0c60c8e56c6133c8a0fd69b9344464b3a1ecd",
+   "bytes": 929
+  },
+  {
+   "path": "gen/shaders/common.glsl",
+   "sha256": "c57a7f63a213cc6c1b716ce20dbb7545f7e0ebc1b2b15f6af9c238205f568617",
+   "bytes": 4703
+  },
+  {
+   "path": "gen/shaders/dome_fs.glsl",
+   "sha256": "2741e0dad93d4c20df7ae7b798a3ddf338dde5752605798c0f2c00a5e2aa199a",
+   "bytes": 1432
+  },
+  {
+   "path": "gen/shaders/dome_vs.glsl",
+   "sha256": "32cbea1faffe78bed65625c2ca12885f8b436348f408fd9811964b326ee9681b",
+   "bytes": 238
+  },
+  {
+   "path": "gen/shaders/floor_fs.glsl",
+   "sha256": "76b508202ab2056c582dfaebb36e4d922a07ad5e2f385b8a97bf038f9ee59f6a",
+   "bytes": 1395
+  },
+  {
+   "path": "gen/shaders/floor_vs.glsl",
+   "sha256": "7cb5af48896e9c818980c0e811ca46b63e2f95044854ec978d5591450ddea6a2",
+   "bytes": 542
+  },
+  {
+   "path": "gen/shaders/hall_fs.glsl",
+   "sha256": "40d690413fc872e589e4c74bba9dc280cae44f940b018e2dc17f326ce507cb07",
+   "bytes": 2512
+  },
+  {
+   "path": "gen/shaders/hall_vs.glsl",
+   "sha256": "9a9319873284c8aedd62e699b1edb8a5e3ef1afae0df7eeac49a2dafa2eafe16",
+   "bytes": 421
+  },
+  {
+   "path": "gen/shaders/halo_fs.glsl",
+   "sha256": "5659c293ff13d1024ffa67b6a555f358f672e79b708634f941d5f7c65c34b777",
+   "bytes": 513
+  },
+  {
+   "path": "gen/shaders/halo_vs.glsl",
+   "sha256": "533447e7524e261fbf3ff77b3b7bd49f21344e445901a6179994a1c3887cf689",
+   "bytes": 541
+  },
+  {
+   "path": "gen/shaders/lamp_lib.glsl",
+   "sha256": "aba51411a53dd72955513a47704d50a294e5b6acacc5dc573cc53234272e3a0c",
+   "bytes": 743
+  },
+  {
+   "path": "gen/shaders/lantern_fs.glsl",
+   "sha256": "ec57e7064a0b332dcc678804cb345501ae0a7309892ea43012b47d6ffb609ee2",
+   "bytes": 634
+  },
+  {
+   "path": "gen/shaders/lantern_lib.glsl",
+   "sha256": "77542022212ad4ba91416bade7f2b6b09b9ddedac99f3727a38839e09e910fce",
+   "bytes": 554
+  },
+  {
+   "path": "gen/shaders/lantern_vs.glsl",
+   "sha256": "0cc6a88e3015d351deeba8fc1fb6d16e481bbd3c8513923d6d58f1009fca55d4",
+   "bytes": 617
+  },
+  {
+   "path": "gen/shaders/metal_fs.glsl",
+   "sha256": "25abfe4be6204c95708646a041b3050eae710e291b28d8306a3339e73b44b909",
+   "bytes": 206
+  },
+  {
+   "path": "gen/shaders/metal_lib.glsl",
+   "sha256": "c27bed5c8e4b9e4ff6c77ae9b491a73c7539574c5f019f183619df67184624c6",
+   "bytes": 2063
+  },
+  {
+   "path": "gen/shaders/metal_vs.glsl",
+   "sha256": "9488aa68a48df777a8c07b212d1c2e92b2094ae01336b24da1d195bf1702a961",
+   "bytes": 449
+  },
+  {
+   "path": "gen/shaders/nave_fs.glsl",
+   "sha256": "af67c301fc5f8c7c876a4b634cbad6d5e27452ce3f1393ba50a952affeba895f",
+   "bytes": 3366
+  },
+  {
+   "path": "gen/shaders/nave_vs.glsl",
+   "sha256": "d12fd5c50c4c8abd13d5780c5eebbad2282556709ac082799a9496124ce0c7d4",
+   "bytes": 570
+  },
+  {
+   "path": "gen/shaders/ode_lib.glsl",
+   "sha256": "013f921c4bbcc8c44304b000aec0eb31859fc112c66442c329b53f489d2f257d",
+   "bytes": 1122
+  },
+  {
+   "path": "gen/shaders/pins_fs.glsl",
+   "sha256": "1d6950bd04fd9ec0613f0d84f4dec8c786dbf6549065f2be9b9dfcc8b86c3784",
+   "bytes": 536
+  },
+  {
+   "path": "gen/shaders/pins_vs.glsl",
+   "sha256": "2b3b69df84b0e70b843c04a6fd9c54e9fac91d1e7d9c0a6aeab8168c60f129d8",
+   "bytes": 658
+  },
+  {
+   "path": "gen/shaders/rose_fs.glsl",
+   "sha256": "a91ee472217793d30b2d176604417d3ba2fa3f02cfce98adbaff3310cd6b8104",
+   "bytes": 2849
+  },
+  {
+   "path": "gen/shaders/rose_vs.glsl",
+   "sha256": "8ab73132dff4a3195189dbcb5a386f4d4d9003c3da020981434d9cf5d5951bba",
+   "bytes": 240
+  },
+  {
+   "path": "gen/shaders/shaft_fs.glsl",
+   "sha256": "f0c124a20c8edd2bbe8b87f548b45583f90af6dfa1a8a5dba33bb8f7d5492e43",
+   "bytes": 690
+  },
+  {
+   "path": "gen/shaders/shaft_vs.glsl",
+   "sha256": "5b2edb9bdbb4fca6c8113d1dedafa2928b0ef6e765a1ae91a9d16a80c394f0bd",
+   "bytes": 353
+  },
+  {
+   "path": "gen/shaders/sprite_fs.glsl",
+   "sha256": "59cc264c33ba1aae1c1af3d4b5d70c7ff5737525754e4f13a54cb1b9e6ef014e",
+   "bytes": 280
+  },
+  {
+   "path": "gen/shaders/sprite_vs.glsl",
+   "sha256": "db63412f780bf30c821d3c46a75518e20cc70621455d768e5f84808c47c2c891",
+   "bytes": 596
+  },
+  {
+   "path": "gen/shaders/tapestry_fs.glsl",
+   "sha256": "d616499557f342b8ee6de3c8d7950c6432529fc391dee02b3b2bdc70ca8bd85d",
+   "bytes": 3499
+  },
+  {
+   "path": "gen/shaders/tapestry_vs.glsl",
+   "sha256": "c03c5eb409f2ab3fa084a2e9c7563e288856a2d3b31c57369f9d770b6b506216",
+   "bytes": 282
+  },
+  {
+   "path": "gen/shaders/tile_lib.glsl",
+   "sha256": "a2a2a597658a5178106070be5dc3e08ecbe4894668c797144a0c70875ab9c88b",
+   "bytes": 2652
+  }
+ ],
+ "outputs": [
+  {
+   "path": "build/worlds/ode.x3d",
+   "sha256": "78f2fd46c55ad566a78743998b9801009c06e2544164c72b3aba575cb5585176",
+   "bytes": 3103914
+  },
+  {
+   "path": "build/worlds/ode.map.json",
+   "sha256": "6654bac720771af27e56591d4453f99ab425c106ee88619a0d8c0f57ca27f8a2",
+   "bytes": 118493
+  },
+  {
+   "path": "build/worlds/ode.report.json",
+   "sha256": "2773f5216fc89e1a8806dae696f01717c66e07c188f820b653de32b2519648e4",
+   "bytes": 517
+  },
+  {
+   "path": "build/worlds/turca.x3d",
+   "sha256": "52503831df8aadb4f5c18a180387325094b11a1c4efab92c810173294befda31",
+   "bytes": 3669860
+  },
+  {
+   "path": "build/worlds/turca.map.json",
+   "sha256": "60cbdaccf22602a018c6862e8210f873e91a2a9b09bb56fd60fd2f07a57c9a30",
+   "bytes": 156592
+  },
+  {
+   "path": "build/worlds/turca.report.json",
+   "sha256": "2c2980fcc234d629b08d7b299688922ff01e2c190b18e9e27d878680b21fda79",
+   "bytes": 689
+  }
+ ],
+ "note": "The worlds are bit-identical on the machine class that made them (numpy and Pillow do the geometry and the picture; another CPU may differ in the last bit, S). CI judges the worlds by the witnesses (the gate, Behaviour, Eyes, the page, hover and Host), not by these hashes, and prints them in the page job so a match can be seen (D-023)."
+}

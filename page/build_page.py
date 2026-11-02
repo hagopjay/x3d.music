@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the page: build/page/ holds every file the browser asks for, laid out the way the host serves them.
 
-    python3 -I page/build_page.py [--no-audio]
+    python3 -I page/build_page.py [--no-audio | --audio-only]
 
   index.html            the template with the config filled in (the host wraps it in its own skeleton)
   clock.js driver.js ui.js hover.js boot.js      the page's own scripts (no modules, no eval)
@@ -110,6 +110,10 @@ def sha(path):
 def main(argv):
     audio = "--no-audio" not in argv
     os.makedirs(OUT, exist_ok=True)
+    if "--audio-only" in argv:                         # CI's audio job: encode the masters it has just rendered and stop; the page job downloads the .mp4 files
+        for p in PIECES:
+            print("audio %s: %s" % (p["id"], "encoded" if encode_audio(p["id"], True) else "no master to encode"))
+        return 0
     for sub in ("worlds", "data", "audio"):
         os.makedirs(os.path.join(OUT, sub), exist_ok=True)
     cfg = dict(title="Loomsong", pieces=[])
