@@ -16,8 +16,8 @@
   },
   {
    "path": "score/build_score.py",
-   "sha256": "72a2a0c46e046218690eb43064b7327c94553dd6b63edfe12711ad25967bb200",
-   "bytes": 1567
+   "sha256": "57122c3b6799ddeb5a91612569816d04bc394d215363dc35ea616650ed4b28ff",
+   "bytes": 2119
   },
   {
    "path": "score/cardlib.py",
@@ -48,28 +48,44 @@
    "path": "score/turca.py",
    "sha256": "03d793e0c46041c028130cdafa18f218182637b5d014d8cf73a5eef354a79333",
    "bytes": 8979
+  },
+  {
+   "path": "score/arrange_lib.py",
+   "sha256": "472d57e7025bc5af1f6d4a479f52f9837ee226d27249a0011049eac0b3baf32a",
+   "bytes": 4304
+  },
+  {
+   "path": "score/arrange_turca.py",
+   "sha256": "a65a74066964b5aa1f3412d2253c1fb89ca6433c7a7f9f4e336e319ada8eb2eb",
+   "bytes": 10393
+  },
+  {
+   "path": "score/arrange_ode.py",
+   "sha256": "a1c05547ebc3f2ffdd35876183b917f69d97b3b2e3c9fd6df072a44802e21975",
+   "bytes": 12923
   }
  ],
  "outputs": [
   {
    "path": "score/turca.score.json",
-   "sha256": "3cc8110d0fb06c477e19c2123919a8e52ad7210bcbc36bd46bdf6deb22d203a9",
-   "bytes": 649272
+   "sha256": "b6eeb3115b68f707d0e5ec224a923ba0b875aa24820e0668e2a8988cc2ac62e7",
+   "bytes": 1465431
   },
   {
    "path": "score/ode.score.json",
-   "sha256": "54798278221ef90f44e762b2e10d1cee8f74e5c65e5bcd2e2d6bb41d1b5eb995",
-   "bytes": 94001
+   "sha256": "60427b279a467164debaa2a886c4fcd08e8f7b742df456dfdbd697228d39a73b",
+   "bytes": 695128
   },
   {
    "path": "tracks/turca.tracks.json",
-   "sha256": "c232cc560e0dc3ac1302592f3c562a8d9b92b212baad43f04f14181dd9315bd0",
+   "sha256": "b34c86c5e8b873452de2d60d445f831d065470e51c0555639b6f147c6986b2be",
    "bytes": 341606
   },
   {
    "path": "tracks/ode.tracks.json",
-   "sha256": "2f94a31088c82df8bdb5b4affa5c394b5b03e0eab52914cc9910df1c74cdf777",
+   "sha256": "be8bb52788b6a93730f32aaf09eb80f47334ed61598c2cb87e6a60f6238e208f",
    "bytes": 331975
   }
- ]
+ ],
+ "note": "Rewritten in P2: the builder now also adds the arrangement layers (score/arrange_*.py). The composer notes are unchanged; the Score witness proves it."
 }

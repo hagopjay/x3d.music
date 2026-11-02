@@ -2,7 +2,7 @@
 """Fetch the Salamander Grand Piano V3 samples the Turca needs into a local cache and check each file against sources/salamander.manifest.json (size and sha256). Standard library only.
 
 The piano is Alexander Holm's Salamander Grand Piano V3 (a Yamaha C5, 48 kHz 24-bit), remapped to SFZ and FLAC by kinwie, licensed CC BY 3.0 (NOTICE.md carries the credit).
-Nothing is committed: the subset is about 230 MB. The Turca's notes run from MIDI 38 to 88, which the 17 sampled keys D#2 to D#6 cover, and the card's velocities run from about 36 to 114,
+Nothing is committed: the subset is about 212 MB (136 files). The Turca's notes run from MIDI 38 to 88, which the 17 sampled keys D#2 to D#6 cover, and the card's velocities run from about 36 to 114,
 so every second one of the 16 recorded velocity layers is enough (v2 to v16) when the sampler blends the two layers either side of a velocity.
 
     python3 -I tools/fetch_salamander.py [--cache DIR] [--write-manifest]
@@ -83,7 +83,8 @@ def main():
             f.write("\n")
         print("fetch_salamander: wrote %s (%d files, %.1f MB)" % (os.path.relpath(MANIFEST, ROOT), len(files), sum(v["bytes"] for v in files.values()) / 1e6))
         return 0
-    want = json.load(open(MANIFEST))["files"]
+    with open(MANIFEST) as f:
+        want = json.load(f)["files"]
     wrong = [rel for rel, v in files.items() if want.get(rel) != v]
     for rel in wrong:
         os.remove(os.path.join(a.cache, rel))

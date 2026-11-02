@@ -267,7 +267,8 @@ class Detector(unittest.TestCase):
         if not (os.path.exists(card_path) and os.path.exists(stem)):
             self.skipTest("the Turca piano stem has not been built here (python3 audio/render.py turca)")
         import json
-        card = json.load(open(card_path, encoding="utf-8"))
+        with open(card_path, encoding="utf-8") as f:
+            card = json.load(f)
         x, _ = sf.read(stem, dtype="float32")
         e = np.abs(ear.onset_errors(x, ear.expected_onsets(card, "pno"), **ear.PIANO))
         self.assertLess(float(np.median(e)), ear.ONSET_MEDIAN_MS / 1000)

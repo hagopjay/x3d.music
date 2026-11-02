@@ -194,7 +194,8 @@ def main():
     pieces = ["turca", "ode"] if a.piece == "all" else [a.piece]
     allr, failed = {}, 0
     for p in pieces:
-        card = json.load(open(os.path.join(ROOT, "score", p + ".score.json"), encoding="utf-8"))
+        with open(os.path.join(ROOT, "score", p + ".score.json"), encoding="utf-8") as f:
+            card = json.load(f)
         R = check(card, p, os.path.join(a.audio, p, p + ".master.wav"), os.path.join(a.audio, p, "stems"))
         allr[p] = list(R)
         for r in R:
@@ -202,7 +203,8 @@ def main():
             failed += not r["ok"]
     if a.out:
         os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
-        json.dump(allr, open(a.out, "w"), indent=1)
+        with open(a.out, "w") as f:
+            json.dump(allr, f, indent=1)
     print("ear witness: %d checks, %d failed" % (sum(len(v) for v in allr.values()), failed))
     sys.exit(1 if failed else 0)
 

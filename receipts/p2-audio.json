@@ -1,0 +1,171 @@
+{
+ "schema": "loomsong.receipt/1",
+ "command": "python3 -I audio/render.py all",
+ "SOURCE_DATE_EPOCH": "1793491200",
+ "python": "3.13",
+ "inputs": [
+  {
+   "path": "score/turca.score.json",
+   "sha256": "b6eeb3115b68f707d0e5ec224a923ba0b875aa24820e0668e2a8988cc2ac62e7",
+   "bytes": 1465431
+  },
+  {
+   "path": "score/ode.score.json",
+   "sha256": "60427b279a467164debaa2a886c4fcd08e8f7b742df456dfdbd697228d39a73b",
+   "bytes": 695128
+  },
+  {
+   "path": "audio/sampler.py",
+   "sha256": "3b21ea5b897c30ee3651b7389729078f14351ea8670f87d0053b537e3fb4b16c",
+   "bytes": 7273
+  },
+  {
+   "path": "audio/rack.py",
+   "sha256": "b10a32b1434637ee27d54b458b0a1624fbd094548c99196a78b76ce7b830e79f",
+   "bytes": 4289
+  },
+  {
+   "path": "audio/mix.py",
+   "sha256": "9415452f3baad18ef7c6bf57a5a0feff1c92e69092e774ffb26ca1e5a407f6a8",
+   "bytes": 12857
+  },
+  {
+   "path": "audio/meter.py",
+   "sha256": "fc8d0899138595b72893ab9e71a7e5bc3faea506039719e055c1187b2ecfc01e",
+   "bytes": 3670
+  },
+  {
+   "path": "audio/recipes.py",
+   "sha256": "b0c8c22cf063cfcf56a2bd97834bcf5b98a626a8f6f91606999d5ca1dcb993ea",
+   "bytes": 9940
+  },
+  {
+   "path": "audio/render.py",
+   "sha256": "d05275af5bda52341e257168c070c7f3367068b0e5e2c7a626fe29d7ccb292a9",
+   "bytes": 5777
+  },
+  {
+   "path": "audio/faust/bass.dsp",
+   "sha256": "5e5db90395a88d859868dff06bcf68c00268ab3e96e178fb2072beb14b36ce12",
+   "bytes": 777
+  },
+  {
+   "path": "audio/faust/brass.dsp",
+   "sha256": "60631bb5b5a006228665da097d647a8683f68ccb8257d74e62261d1d4eafa893",
+   "bytes": 586
+  },
+  {
+   "path": "audio/faust/choir.dsp",
+   "sha256": "c8f08cc90240845bd6b9b6f66bd00152dadd2a79367d86bb7187613db743317e",
+   "bytes": 677
+  },
+  {
+   "path": "audio/faust/clap.dsp",
+   "sha256": "7b976b8079f4617524c9cce6ee435e62d7a64ea217e81e43e39124f21b7f7eab",
+   "bytes": 350
+  },
+  {
+   "path": "audio/faust/clatter.dsp",
+   "sha256": "ae4633560ff74461e6c79c13f806af99e59eeba39aa21d8f7f1b49be0e818884",
+   "bytes": 369
+  },
+  {
+   "path": "audio/faust/cymbal.dsp",
+   "sha256": "417c259f4badc8b4caf5ce969c92c8d216c4b74b82e9d7be01c1be7c2aa4640f",
+   "bytes": 451
+  },
+  {
+   "path": "audio/faust/davul.dsp",
+   "sha256": "e259ab3c71159b1af7f5ad38fa7c8310640ff8dda45e952758ba02b6b65b5b6a",
+   "bytes": 416
+  },
+  {
+   "path": "audio/faust/ep.dsp",
+   "sha256": "09b0a0026c1daae3f32e849d7adede1eeddb101a04e08dab853b1e95539e178c",
+   "bytes": 503
+  },
+  {
+   "path": "audio/faust/hat.dsp",
+   "sha256": "3746e2830e005a3fdf8ab1b9c26d1de34642693d528fd0f0900790c1e45fe64d",
+   "bytes": 450
+  },
+  {
+   "path": "audio/faust/jingle.dsp",
+   "sha256": "95d2bbda29661d2126f940bafe2cb0cf9c0bd82b9f976dd7fdbbcd3284ecd180",
+   "bytes": 479
+  },
+  {
+   "path": "audio/faust/kick.dsp",
+   "sha256": "2b8c452a02433eee9913cb49bb4cc52418313eacaef5b7bbc28de67315625578",
+   "bytes": 427
+  },
+  {
+   "path": "audio/faust/lead.dsp",
+   "sha256": "5d3088c7e3c1e567c6399abf6004d2136e47d05f9ac8167e6eee41d4b15d8426",
+   "bytes": 601
+  },
+  {
+   "path": "audio/faust/pad.dsp",
+   "sha256": "81d84a7976755a4567709a8efdc0cb48be138c7e08a52ba637ad868e986615eb",
+   "bytes": 516
+  },
+  {
+   "path": "audio/faust/rim.dsp",
+   "sha256": "dc3311a1c7e1f71adcf77eec56f82bed33af1518e70d1c743982b332b597c0eb",
+   "bytes": 328
+  },
+  {
+   "path": "audio/faust/snare.dsp",
+   "sha256": "57c91e29d00d003ead5516644c75bb03aa8e569b6d98a92d866a34a5dde2efdc",
+   "bytes": 488
+  },
+  {
+   "path": "audio/faust/strings.dsp",
+   "sha256": "9fb8a1c805b26fa64d1f9a4f48ea6ee4f4f4871ac7f6120d714bfa8d18660055",
+   "bytes": 534
+  },
+  {
+   "path": "audio/faust/timp.dsp",
+   "sha256": "1ca936103e8ce3ba5f1a8792f807670a2b1fe1bf061dced2dcdc6e9155181a07",
+   "bytes": 489
+  },
+  {
+   "path": "audio/faust/tom.dsp",
+   "sha256": "9ecec46a19328f3ebecc78c76d204b32bac538d98b12ca9081a6e7f8933213ed",
+   "bytes": 320
+  },
+  {
+   "path": "audio/faust/triangle.dsp",
+   "sha256": "364740389887505fe1df6084b382c7d6fbe58129364866d7c3cd9441e640786d",
+   "bytes": 376
+  },
+  {
+   "path": "audio/faust/common.lib",
+   "sha256": "b8036ac648e75ee019d962639c89974b7270ec0eb3c4d64306c994f4af9d79c3",
+   "bytes": 684
+  },
+  {
+   "path": "sources/salamander.manifest.json",
+   "sha256": "b17e70608d91e95524a3e8b53dc6c3a04ae37682aa342a486a78e2f3258c1867",
+   "bytes": 18339
+  },
+  {
+   "path": "requirements-audio.txt",
+   "sha256": "8881227395a5a62c8f9bf5d6e1a1d1bb658f5dd2bb8086a047d3847a7206b6be",
+   "bytes": 290
+  }
+ ],
+ "outputs": [
+  {
+   "path": "build/audio/turca/turca.master.wav",
+   "sha256": "ca1ba2b58d759e7d21b9c4fd68a025a08424ad0c79a7719919316b464585585b",
+   "bytes": 63030902
+  },
+  {
+   "path": "build/audio/ode/ode.master.wav",
+   "sha256": "b4cbd676e8aebc3372f2e56a46f8f53491c1ff82a46a4adb1e0e6b85a5e6b5c7",
+   "bytes": 62172722
+  }
+ ],
+ "note": "The masters are bit-identical only on the machine class that made them (the Faust voices are compiled by LLVM for the host CPU). CI judges the audio by the Ear witness's thresholds, not by these hashes."
+}
