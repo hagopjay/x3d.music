@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the page: build/page/ holds every file the browser asks for, laid out the way the host serves them.
 
-    python3 -I page/build_page.py [--no-audio | --audio-only] [--out DIR]
+    python3 -I page/build_page.py [--no-audio | --audio-only] [--out DIR] [--media DIR]
 
   index.html            the template with the config filled in (the host wraps it in its own skeleton)
   clock.js driver.js ui.js hover.js report.js boot.js      the page's own scripts (no modules, no eval)
@@ -9,6 +9,8 @@
   worlds/<piece>.x3d    the generated worlds, DOCTYPE line removed (they publish as application/xml)
   data/<piece>.json     what the page needs from the score card: bars, tempo, sections, chords, a slim table of notes by card index, hover tables, the Ode's lines
   audio/<piece>.mp4     AAC, encoded from the master WAV when it is present (the masters are not committed)
+  cards/<id>.mp4 .jpg   the animated pictures (title, ode, turca, between) and their posters, from the media folder (tools/prep_cards.py makes it; default build/media, or --media DIR, or LOOM_MEDIA);
+                        a card goes in only when both of its files match media/cards.json, and a build with no media folder is a page without cards
   manifest.json         every file, its size and sha256: the set the Host witness lets the server serve
 
 The note index everywhere (world tables, pins, holes, hover) is the index into the card's `notes` array; data/<piece>.json keeps the same order.
@@ -20,9 +22,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(ROOT, "gen"))
 import worldlib as W            # noqa: E402
+import artlib                   # noqa: E402
 
 OUT = os.path.join(ROOT, "build", "page")
 WORLDS = os.path.join(ROOT, "build", "worlds")
+MEDIA = os.environ.get("LOOM_MEDIA") or os.path.join(ROOT, "build", "media")
 
 DE = ["Freude, schöner Götterfunken,", "Tochter aus Elysium,", "Wir betreten feuertrunken,", "Himmlische, dein Heiligtum!",
       "Deine Zauber binden wieder,", "Was die Mode streng geteilt;", "Alle Menschen werden Brüder,", "Wo dein sanfter Flügel weilt."]
@@ -40,6 +44,37 @@ PIECES = [
         "Piano: Salamander Grand Piano V3 by Alexander Holm (remapped by kinwie), CC BY 3.0. Every other voice is synthesised in code; this is not a recording of anyone playing the piece.",
         "Score card, arrangement, worlds and page: Loomsong; everything derived from the score card is shared under CC BY-NC-SA 4.0."]),
 ]
+
+
+# What the page says is AI-made in each piece, by art item (art/manifest.json): shown as the corner label and in the credits when the world really uses the picture.
+AI_MADE = {"ode": [("ode-tapestry", "the tapestry's picture (a generated image, woven by the loom)")],
+           "turca": [("dome-motifs", "the twelve tile motifs on the dome")]}
+
+
+# What the page says about each animated card when it is AI-made (a test pattern is never called that: it says what it is on the card and is left out of the AI statements).
+CARD_AI_PAGE = {"title": "the moving picture behind the title card", "between": "the moving picture behind the end card"}
+CARD_AI_PIECE = "the opening card, a moving picture"
+
+
+def cards_from(media, out):
+    """The cards this build ships: [(id, spec)], copied into out/cards. A card needs its mp4 and its jpg to match the sha256 in media/cards.json; any other is left out and said so."""
+    shutil.rmtree(os.path.join(out, "cards"), ignore_errors=True)
+    mp = os.path.join(media, "cards.json")
+    if not os.path.isfile(mp):
+        return {}, False
+    with open(mp, encoding="utf-8") as f:
+        man = json.load(f)
+    shipped = {}
+    for cid, c in sorted(man.get("cards", {}).items()):
+        v, pj = os.path.join(media, c["video"]), os.path.join(media, c["poster"])
+        if not (os.path.isfile(v) and os.path.isfile(pj)) or sha(v) != c["sha256"] or sha(pj) != c["poster_sha256"]:
+            print("card %s: left out (a file is missing or does not match media/cards.json)" % cid)
+            continue
+        os.makedirs(os.path.join(out, "cards"), exist_ok=True)
+        shutil.copyfile(v, os.path.join(out, "cards", cid + ".mp4"))
+        shutil.copyfile(pj, os.path.join(out, "cards", cid + ".jpg"))
+        shipped[cid] = dict(video="cards/%s.mp4" % cid, poster="cards/%s.jpg" % cid, seconds=c["seconds"], label=c["label"], bytes=c["bytes"])
+    return shipped, bool(man.get("synthetic"))
 
 
 def strip_doctype(text):
@@ -112,6 +147,7 @@ def main(argv):
     if "--out" in argv:                                # a second build somewhere else (the private preview is built with the host's object name; build/page stays the form CI tests)
         OUT = os.path.abspath(argv[argv.index("--out") + 1])
     audio = "--no-audio" not in argv
+    media = os.path.abspath(argv[argv.index("--media") + 1]) if "--media" in argv else MEDIA
     os.makedirs(OUT, exist_ok=True)
     if "--audio-only" in argv:                         # CI's audio job: encode the masters it has just rendered and stop; the page job downloads the .mp4 files
         for p in PIECES:
@@ -125,20 +161,37 @@ def main(argv):
     if cfg["hostApi"] and not re.fullmatch(r"[A-Za-z_$][\w$]*", cfg["hostApi"]):
         sys.exit("LOOM_HOST_API must be a plain identifier")
     have_audio = {}
+    shipped, synthetic = cards_from(media, OUT)
+    shutil.rmtree(os.path.join(OUT, "worlds", "art"), ignore_errors=True)               # only the pictures this build's worlds name are shipped
     for p in PIECES:
         pid = p["id"]
         text = open(os.path.join(WORLDS, pid + ".x3d"), encoding="utf-8").read()
         with open(os.path.join(OUT, "worlds", pid + ".x3d"), "w", encoding="utf-8", newline="\n") as f:
             f.write(strip_doctype(text))
+        for name in re.findall(r"url='\"art/([^\"']+)\"'", text):                        # a picture a world names by a relative url ships beside it
+            src = os.path.join(WORLDS, "art", name)
+            if not os.path.isfile(src):
+                sys.exit("%s names art/%s but %s is missing: run gen/world_%s.py" % (pid, name, src, pid))
+            os.makedirs(os.path.join(OUT, "worlds", "art"), exist_ok=True)
+            shutil.copyfile(src, os.path.join(OUT, "worlds", "art", name))
         rep = json.load(open(os.path.join(WORLDS, pid + ".report.json")))
         shaders = re.findall(r"<ComposedShader[^>]*DEF='([^']+)'", text)
         m = meta(pid)
         with open(os.path.join(OUT, "data", pid + ".json"), "w", encoding="utf-8", newline="\n") as f:
             f.write(json.dumps(m, separators=(",", ":"), ensure_ascii=False) + "\n")
         have_audio[pid] = encode_audio(pid, audio)
+        ai = [label for item, label in AI_MADE.get(pid, []) if artlib.use(item) == "ai"]
+        if pid in shipped and not synthetic:
+            ai.append(CARD_AI_PIECE)
         cfg["pieces"].append(dict(id=pid, n=p["n"], title=p["title"], by=p["by"], world="worlds/%s.x3d" % pid, audio="audio/%s.mp4" % pid, meta="data/%s.json" % pid,
-                                  D=rep["D"], shaders=shaders, camScale=p["camScale"], credits=p["credits"], ai=[]))
-    for name in ("clock.js", "driver.js", "ui.js", "hover.js", "report.js", "boot.js"):
+                                  D=rep["D"], shaders=shaders, camScale=p["camScale"], credits=p["credits"], ai=ai))
+    if shipped:
+        cfg["cards"] = dict(title=shipped.get("title"), between=shipped.get("between"), open={k: v for k, v in shipped.items() if k in ("ode", "turca")})
+        cfg["cards"] = {k: v for k, v in cfg["cards"].items() if v}
+        cfg["cardsSynthetic"] = synthetic
+        if not synthetic:
+            cfg["pageAi"] = [CARD_AI_PAGE[k] for k in ("title", "between") if k in shipped]
+    for name in ("clock.js", "driver.js", "ui.js", "cards.js", "hover.js", "report.js", "boot.js"):
         shutil.copyfile(os.path.join(HERE, name), os.path.join(OUT, name))
     tpl = open(os.path.join(HERE, "index.tpl.html"), encoding="utf-8").read()
     cfg_json = json.dumps(cfg, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
@@ -158,8 +211,8 @@ def main(argv):
                 files.append(dict(path=rel, bytes=os.path.getsize(full), sha256=sha(full)))
     files.sort(key=lambda x: x["path"])
     with open(os.path.join(OUT, "manifest.json"), "w", encoding="utf-8", newline="\n") as f:
-        json.dump(dict(files=files, audio=have_audio, total_bytes=sum(x["bytes"] for x in files)), f, indent=1)
-    print("page: %d files, %.1f MB; audio %s; report %s" % (len(files), sum(x["bytes"] for x in files) / 1e6, have_audio, "on, host object named in the config" if cfg["hostApi"] else "off (LOOM_HOST_API not set)"))
+        json.dump(dict(files=files, audio=have_audio, cards={k: dict(bytes=v["bytes"], synthetic=synthetic) for k, v in shipped.items()}, total_bytes=sum(x["bytes"] for x in files)), f, indent=1)
+    print("page: %d files, %.1f MB; audio %s; cards %s; report %s" % (len(files), sum(x["bytes"] for x in files) / 1e6, have_audio, (", ".join(sorted(shipped)) + (" (test patterns)" if synthetic else " (AI-made)")) if shipped else "none", "on, host object named in the config" if cfg["hostApi"] else "off (LOOM_HOST_API not set)"))
     for x in files:
         if not x["path"].startswith("xite/"):
             print("  %-22s %9d" % (x["path"], x["bytes"]))

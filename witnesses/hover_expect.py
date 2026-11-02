@@ -19,12 +19,11 @@ def pitch_name(m):
 
 
 def note_line(card, i):
+    """A note's card line. Bar and beat are the score card's own record of the note, not a sum redone from its seconds: the card keeps seconds to six decimals, so a note that sits on a bar line
+    (an arrangement note of the Ode's choir does: 279.9999996 quarters) would land on the bar before it with beat 5, where the page's four-decimal seconds happen to round the other way. The page's
+    bar and beat are still worked out from seconds and the tempo map (that arithmetic is what this test holds to the card)."""
     n = card.notes[i]
-    q = float(card.t_q(n["t"]))
-    rel = q - card.pickup
-    bar = 0 if rel < 0 else 1 + int(rel / card.beats + 1e-9)
-    beat = 1 + (card.beats - card.pickup) + q if rel < 0 else 1 + (rel % card.beats)
-    return dict(i=i, id=n["id"], line1="%s · %s" % (pitch_name(n["pitch"]), n["inst"]), bar=bar, beat=round(beat, 2), who="composer" if n["layer"] == "composer" else "arrangement", vel=n["vel"])
+    return dict(i=i, id=n["id"], line1="%s · %s" % (pitch_name(n["pitch"]), n["inst"]), bar=n["bar"], beat=round(float(n["beat"]), 2), who="composer" if n["layer"] == "composer" else "arrangement", vel=n["vel"])
 
 
 def main(a):

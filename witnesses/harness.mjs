@@ -52,10 +52,11 @@ export function startServer({ root, published = null, wrapIndex = true, mime = {
     log.push({ url: u, status: ok ? 200 : 404, range: req.headers.range || null });
     if (!ok) { rsp.writeHead(404, hdr); rsp.end('not found'); return; }
     let body = fs.readFileSync(f);
-    const type = mime[path.extname(f)] || TYPES[path.extname(f)] || 'application/octet-stream';
+    let type = mime[path.extname(f)] || TYPES[path.extname(f)] || 'application/octet-stream';
+    if (u.startsWith('cards/') && path.extname(f) === '.mp4') type = 'video/mp4';        // the animated pictures are video; the audio masters (audio/*.mp4) stay audio
     if (u === 'index.html' && wrapIndex) body = Buffer.from(SKELETON.slice(0, 3).join('') + body.toString('utf8') + SKELETON[3]);
     const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
-    if (m && type.startsWith('audio/')) {                                   // media elements ask for ranges
+    if (m && (type.startsWith('audio/') || type.startsWith('video/'))) {    // media elements ask for ranges
       const a = m[1] === '' ? Math.max(0, body.length - Number(m[2])) : Number(m[1]);
       const b = m[1] !== '' && m[2] !== '' ? Math.min(Number(m[2]), body.length - 1) : body.length - 1;
       rsp.writeHead(206, { ...hdr, 'content-type': type, 'accept-ranges': 'bytes', 'content-range': `bytes ${a}-${b}/${body.length}`, 'content-length': b - a + 1 });

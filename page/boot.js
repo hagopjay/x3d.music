@@ -9,6 +9,7 @@
   global.Loomsong = app;
   var ui = new global.LoomUI(app, root);
   app.ui = ui;
+  app.cards = ui.cards = new global.LoomCards(app, ui, root);          // the animated pictures, when the build shipped any
   var hover = new global.LoomHover(app);
   hover.ui = ui;
   app.hover = hover;

@@ -114,8 +114,12 @@ try {
 
   // credits
   await ev(D => { Loomsong.clock.setTime(D); }, await ev(() => Loomsong.D)); await settle(3);
-  const cr = await ev(() => ({ show: document.querySelector('.ls-credits').getAttribute('data-show'), text: document.querySelector('.ls-credbody').textContent }));
-  check('the end card carries the credits', cr.show === '1' && /Sapp/.test(cr.text) && /Salamander/.test(cr.text) && /Nothing in this scene is AI-made/.test(cr.text), `${cr.text.length} characters, with the encoding credit, the piano credit and the AI statement`);
+  const cr = await ev(() => ({ show: document.querySelector('.ls-credits').getAttribute('data-show'), text: document.querySelector('.ls-credbody').textContent, ai: Loomsong.piece.ai || [], label: document.querySelector('.ls-ai').textContent, labelHidden: document.querySelector('.ls-ai').hidden }));
+  // the AI statement follows what the build says the scene uses: every generated picture named, on the end card and in the corner; with none, the card says so
+  const aiOk = cr.ai.length
+    ? /AI-made in this scene/.test(cr.text) && cr.ai.every(a => cr.text.includes(a)) && !cr.labelHidden && cr.ai.every(a => cr.label.includes(a)) && !/Nothing in this scene is AI-made/.test(cr.text)
+    : /Nothing in this scene is AI-made/.test(cr.text) && cr.labelHidden;
+  check('the end card carries the credits', cr.show === '1' && /Sapp/.test(cr.text) && /Salamander/.test(cr.text) && aiOk, `${cr.text.length} characters, with the encoding credit, the piano credit and ${cr.ai.length ? `the AI statement naming ${cr.ai.length} generated thing${cr.ai.length > 1 ? 's' : ''} (also in the corner)` : 'the statement that nothing here is AI-made'}`);
   const errs = (await ev(() => Loomsong.errors)).filter(e => !/WebAssembly|wasm/i.test(e));
   check('no page errors', errs.length === 0 && A.problems().length === 0, errs.concat(A.problems()).slice(0, 4).join(' | ') || 'none');
 } finally {

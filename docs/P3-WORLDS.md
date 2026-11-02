@@ -69,7 +69,7 @@ python3 -I page/build_page.py [--no-audio]                      # build/page (th
 node witnesses/behaviour.mjs --world build/worlds/ode.x3d       # and turca
 node witnesses/eyes.mjs --world build/worlds/ode.x3d --out build/stills/eyes-ode
 node witnesses/page_test.mjs && node witnesses/hover_test.mjs && node witnesses/report_test.mjs && node witnesses/host.mjs
-python3 -I witnesses/receipts.py check receipts/p3-worlds.json
+python3 -I witnesses/receipts.py check receipts/p4-worlds.json     # P3's own receipt (receipts/p3-worlds.json) is kept as the record of that run and reports STALE since P4 (D-039)
 ```
 
 CI runs all of it in the `page` job, after the audio job has rendered the masters and encoded them. The private preview is built with `LOOM_HOST_API=<name of the host's runtime object> python3 -I page/build_page.py --no-audio` (the name is not in the source, D-029); without it the report is off.

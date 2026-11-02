@@ -7,7 +7,8 @@ They sit beside the Loom's own gate (`loom_gate.py`, eleven rules, pinned in too
 by pull request; each has one passing and one failing test in test_loomsong_rules.py.
 
   bus-wired            every ComposedShader (a definition, not a USE) is DEF'd, declares a field u_time, and receives a ROUTE from SecondsBus.value_changed
-  data-texture-nearest a texture node used as shader data (inside a ComposedShader field) has TextureProperties with NEAREST_PIXEL magnification and minification and no mipmaps
+  data-texture-nearest a texture node used as shader data (inside a ComposedShader field) has TextureProperties with NEAREST_PIXEL magnification and minification and no mipmaps.
+                       A picture that a custom shader reads (an ImageTexture or MovieTexture whose DEF starts Pic_) is not data and may filter; a PixelTexture is always data
   splat-bbox           every GaussianSplats node (a definition) has bboxSize and bboxCenter
   movie-not-still      a MovieTexture url never ends in .png, .jpg or .jpeg
   version-fits-nodes   a file that uses GaussianSplats declares version 4.1
@@ -81,7 +82,11 @@ def check(text):
                 p = e.parent
                 if p is not None and p.tag == "field" and p.parent is not None and p.parent.tag == "ComposedShader":
                     yield e, (defs[e.attrs["USE"]] if "USE" in e.attrs else e)
+    def picture(tex):
+        return tex.tag in ("ImageTexture", "MovieTexture") and tex.attrs.get("DEF", "").startswith("Pic_")
     for use, tex in data_textures():
+        if picture(tex):
+            continue
         tp = next((k for k in tex.kids if k.tag == "TextureProperties"), None)
         if tp is None:
             out.append(F("data-texture-nearest", use, "%s used as shader data has no TextureProperties: add NEAREST_PIXEL filters and generateMipMaps='false'" % tex.tag))

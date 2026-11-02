@@ -9,7 +9,7 @@ inside the pass; the barrel slides to the next band at every section change. Arr
 Layout, metres, Y up, the viewer looks toward -Z: the mandala is centred on the origin (radius 1.4 to 6.4), the barrel machine stands at z = -9 behind it, a ring of 24 arcade bays
 at radius 13.5 carries the dome, the automata stand in an arc to the left.
 """
-import math, os, sys
+import math, os, shutil, sys
 from fractions import Fraction as Fr
 import numpy as np
 
@@ -18,6 +18,7 @@ sys.path.insert(0, HERE)
 import meshlib as M                                                         # noqa: E402
 from meshlib import T, S, R, compose, Mesh, merge                           # noqa: E402
 import worldlib as W                                                        # noqa: E402
+import artlib                                                               # noqa: E402
 from worldlib import N, mf, num, route, Card, EventTable, Shot, World       # noqa: E402
 from worldlib import TAU, X_AXIS, Y_AXIS, Z_AXIS, lin, vec, lerp3, orbit    # noqa: E402,F401
 
@@ -566,6 +567,24 @@ def shot_list(card):
 
 
 # ---- the world ----------------------------------------------------------------------------------------
+def motif_atlas_field(out):
+    """The dome's motif atlas as a shader field. When art/manifest.json asks for the AI-made picture and the file is intact (artlib.status), an ImageTexture of art/dome-motifs.jpg, copied to
+    <out>/art beside the world (a relative url, as the page and the stage serve it); else a one-texel transparent PixelTexture, and the dome draws its procedural tiles (shaders/dome_fs.glsl
+    keeps them for any texel whose alpha is not 1). Returns (field, use, why)."""
+    use, why = artlib.status("dome-motifs")
+    if use == "ai":
+        it = artlib.manifest()["items"]["dome-motifs"]
+        dest = os.path.join(out or W.OUT, "art")
+        os.makedirs(dest, exist_ok=True)
+        shutil.copyfile(artlib.path("dome-motifs"), os.path.join(dest, it["file"]))
+        props = N("TextureProperties", containerField="textureProperties", generateMipMaps=True, minificationFilter="AVG_PIXEL_AVG_MIPMAP", magnificationFilter="AVG_PIXEL",
+                  boundaryModeS="CLAMP_TO_EDGE", boundaryModeT="CLAMP_TO_EDGE", anisotropicDegree=8)
+        tex = N("ImageTexture", props, DEF="Pic_motifs", url='"art/%s"' % it["file"], repeatS=False, repeatT=False)
+    else:
+        tex = N("PixelTexture", W.tex_props(), DEF="Pic_motifs", image="1 1 4 0x00000000", repeatS=False, repeatT=False)
+    return ("u_motifs", "SFNode", "inputOutput", tex), use, why
+
+
 def build(out=None):
     card = Card("turca")
     w = World(card)
@@ -594,7 +613,8 @@ def build(out=None):
 
     # shaders (a Shape that shares one uses a USE)
     sh_floor = w.sh.make("ShFloor", "floor_vs", "floor_fs", [t_tiles.field(), ("u_key", "SFFloat", "inputOutput", 0), LAMP])
-    sh_dome = w.sh.make("ShDome", "dome_vs", "dome_fs", [("u_key", "SFFloat", "inputOutput", 0), ("u_sec", "SFFloat", "inputOutput", 0), ("u_open", "SFFloat", "inputOutput", 0), ("u_qpm", "SFFloat", "inputOutput", QPM)])
+    motifs, motifs_use, motifs_why = motif_atlas_field(out)
+    sh_dome = w.sh.make("ShDome", "dome_vs", "dome_fs", [("u_key", "SFFloat", "inputOutput", 0), ("u_sec", "SFFloat", "inputOutput", 0), ("u_open", "SFFloat", "inputOutput", 0), ("u_qpm", "SFFloat", "inputOutput", QPM), motifs])
     sh_hall = lambda: w.shared("ShHall", lambda: w.sh.make("ShHall", "hall_vs", "hall_fs", [("u_key", "SFFloat", "inputOutput", 0), ("u_lampI", "SFFloat", "inputOutput", 1.0)]))
     sh_barrel = metal_shader(w, "ShBarrel", 1.0, (1.0, 0.78, 0.42), 1.0, 1.0, albedo=BRONZE)
     sh_pins = metal_shader(w, "ShPins", 1.0, (1.0, 0.78, 0.42), 0.0, 1.0, "pins_vs", "pins_fs", [t_pins.field()], albedo=BRASS, flat=1.0)
@@ -631,7 +651,7 @@ def build(out=None):
         pins=[dict(src=d["src"], band=names[d["band"]], notes=d["notes"], x=round(band_x(d["band"], len(names)) + (d["pitch"] - (PITCH0 + PITCH1) // 2) * LANE, 5),
                    th=round(d["theta"], 5), dp=round(max(d["dpsi"], 0.014 / BARREL_R), 5)) for d in pins],
         floor=dict(r0=FLOOR_R0, r1=FLOOR_R1, rings=5, sectors=12, pitch0=36), pin_w=PIN_W, barrel_r=BARREL_R, intangible=list(w.intangible))
-    extra = dict(pins=len(pins), bands=names, tiles=60, teeth=NT, composer_notes=len(comp), automata=[a[0] for a in AUTOMATA], shots=len(shots))
+    extra = dict(pins=len(pins), bands=names, tiles=60, teeth=NT, composer_notes=len(comp), automata=[a[0] for a in AUTOMATA], shots=len(shots), art=dict(dome_motifs=motifs_use, why=motifs_why))
     rep = W.write_world(w, "Rondo alla Turca: the pinned barrel", "Every composer note is a pin, a comb tooth and a floor tile; the arrangement drives the clockwork band.", extra, background=(0.01, 0.015, 0.03), out=out)
     import json
     with open(os.path.join(out or W.OUT, "turca.map.json"), "w", encoding="utf-8", newline="\n") as f:
@@ -640,6 +660,6 @@ def build(out=None):
 
 
 if __name__ == "__main__":
-    r = build()
+    r = build(os.path.abspath(sys.argv[sys.argv.index("--out") + 1]) if "--out" in sys.argv else None)          # --out DIR: a second build somewhere else (CI builds the stand-ins beside the pictures)
     print({k: v for k, v in r.items() if k not in ("tables", "bands")})
     print("tables", r["tables"])

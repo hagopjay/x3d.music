@@ -75,13 +75,27 @@ A published page is one HTML file plus supporting files; each file at most 16 MB
 | Fact | Value | Grade, source |
 |---|---|---|
 | Worlds | Ode 3.10 MB, 11 draw calls, 22,284 triangles, 5 shaders, 226 KB of event textures, 12 shots. Turca 3.67 MB, 30 draw calls, 60,686 triangles, 11 shaders, 160 KB of event textures, 56 shots. The spec's budgets are 150 draw calls and 1.5 million triangles | C, `build/worlds/*.report.json` |
-| The page | 30.8 MB in 118 files: X_ITE 8.5 MB (106 files), worlds 6.8 MB, masters as AAC `.mp4` 14.7 MB, tables 0.8 MB, scripts 0.05 MB | C, `build/page/manifest.json` |
-| Tapestry | 256 by 384 cells, 98,304; separations indigo, silver, gold, ivory, crimson; every row of the first four has an owner, crimson has an owner in 204 of 384 rows and 48% of its cells are woven | C, `test_world_ode.py` |
+| The page | 33.6 MB in 129 files with the test-pattern cards: X_ITE 8.5 MB (106 files), worlds 9.1 MB (the two worlds 6.8 MB and the dome's atlas 2.4 MB), masters as AAC `.mp4` 14.7 MB, tables 0.8 MB, scripts 0.08 MB, cards 0.35 MB. With the four real cards (18.4 MB with their posters) it is 51.7 MB | C, `build/page/manifest.json` |
+| Tapestry (the procedural stand-in's picture; P4's generated picture is below) | 256 by 384 cells, 98,304; separations indigo, silver, gold, ivory, crimson; every row of the first four has an owner, crimson has an owner in 204 of 384 rows and 48% of its cells are woven | C, `test_world_ode.py` |
 | Card chain | 384 cards at 0.12 m a beat, one hole for each of the 3,101 notes, 16 lanes | C, `test_world_ode.py` |
 | Barrel | 1,613 pins for 2,810 written notes (a repeat reuses its pin), 51 teeth (MIDI 38 to 88), 60 tiles (12 sectors by 5 rings), 12 band changes all in silence, 2 silent crossings | C, `test_world_turca.py` |
 | Event times | 24-bit fractions of the scene's length: about 13 microseconds over 216 s | C, `test_worldlib.py` |
 | X_ITE 16.5.1 SAI | `scene.routes` lists ROUTEs; `addFieldCallback(key, field, fn)` takes the key first and `getField` is deprecated; `Viewpoint` has no position or orientation offsets; `PixelTexture.image` reads back as width, height, components and one 0xRRGGBBAA integer a pixel; the Clock ships disabled | C, `witnesses/behaviour.mjs`, `page/driver.js` |
 | X_ITE picking | On the GPU: every shape with `pointerEvents` true hides a TouchSensor's shape behind it, faint or not; `Shape.pointerEvents` is in the 4.1 schema only | C, `witnesses/hover_test.mjs` before and after; the 4.1 schema |
-| Tests | 69 generator tests, Behaviour 16, page 20, hover 8, Host 10 | C, `docs/P3-WORLDS.md` |
+| Tests | 81 generator tests, 28 witness tests that need no audio tools, Behaviour 16 (8 a world), Atlas 9, page 20, hover 8, report 18, Cards 23, Host 10 | C, `docs/P3-WORLDS.md`, `docs/P4-MEDIA.md` |
 | Frame time | About 0.6 s a frame in software GL; no frame rate is quoted | C for the figure, a real GPU is S |
 | How it runs on a real GPU, how it sounds | Not known | S |
+
+## The generated media (P4, see P4-MEDIA.md and PROBES.md H)
+
+| Fact | Value | Grade, source |
+|---|---|---|
+| Pictures in the repository | `art/ode-tapestry.png` 914,163 bytes (512 by 768) and `art/dome-motifs.jpg` 2,354,796 bytes (2,048 by 1,536: twelve tiles of 512 pixels, each picture in a 16 pixel mirrored margin). Each is rebuilt from its raw pixels and holds one line of our own saying it is AI-made; both are under the 5 MB cap for a media file in the repository | C, `art/manifest.json`, `witnesses/leak_sweep.py` |
+| The tapestry's picture | Fitted cell by cell to the nearest of four threads in linear light, with a brightness between 0.32 and 1.15, plus two crimson border threads: of the 98,304 cells indigo 49.7 %, silver 3.7 %, gold 20.1 %, ivory 25.7 %, crimson 0.8 %, against 64.2, 8.8, 22.4, 2.9 and 1.8 % for the procedural picture | C, `gen/picture_ode.py` |
+| Size of the worlds with their pictures | The Ode is 3,103,914 bytes (the same size as before); the Turca 3,671,053 (1,193 bytes more); draw calls (11, 30), triangles (22,284 and 60,686) and shaders (5 and 11) are unchanged; the dome's atlas is a separate 2.4 MB file beside the Turca | C, `build/worlds/*.report.json` |
+| An `ImageTexture` in X_ITE 16.5.1 | Its first row is at v = 0; a custom shader sees alpha 0 until the picture has loaded and for good if it never does | C, Atlas witness (H4, H5) |
+| The four cards | 8 seconds each, 1,600 by 900, H.264, no sound: title 4,558,243 bytes, Ode 3,128,071, Turca 3,779,559, end card 6,269,198, each with a poster of 139 to 211 KB; nothing in them but the container's own names and our one comment; not in the repository (CI builds a set of test patterns, 74 KB each) | C, `tools/prep_cards.py`, `witnesses/test_cards_media.py` |
+| The clips they come from | 8 seconds at 1080p, 26.8 to 35.8 MB each as made (the page does not ship them); drafts at 720p took 64 to 79 seconds to make and finals 113 to 132 | C, the private run ledger |
+| Backdrops, pose | COLMAP registers 48 of 48 sampled frames of each of the three backdrops; mean reprojection error 0.57, 0.48 and 0.55 px; median point error 0.455, 0.379 and 0.412 px | C, private run logs (H2) |
+| Photoreal splats and the Fidelity witness | Not made: they need the GPU machine, which waits for the owner's typed yes | S (H3, D-038) |
+| How the dark dome looks to a person, whether the host plays the cards' video, Safari and Firefox | Not known | S |

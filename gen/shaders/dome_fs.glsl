@@ -1,5 +1,6 @@
 //@include common
 //@include tile_lib
+//@include motif_lib
 uniform float u_key;
 uniform float u_sec;
 uniform float u_open;
@@ -22,6 +23,19 @@ void main() {
   palette(u_key, c1, c2, c3, c4);
   float seed = hash21(cell + u_sec * 7.0);
   vec3 col = tileArt(fract(g), seed * 6.0, 8.0 + 2.0 * floor(seed * 3.0), c1, c2, c3, c4);
+  // The painted motifs, when the picture has loaded (alpha is 0 until then, and for good if it never does: the procedural tile above stays). A section has its motif, A to I, the two endings keep
+  // the refrain's (I) and the coda has J; the first bars open under the hush (K) and the final chord opens the dome into the gold (L). Each cell's glaze is a little different.
+  float sec = floor(u_sec + 0.5);
+  float tSec = sec <= 8.5 ? sec : (sec < 10.5 ? 8.0 : 9.0);
+  vec4 pic = motif(tSec, g);
+  if (pic.a > 0.5) {
+    col = pic.rgb;
+    float hush = (1.0 - smoothstep(3.0, 7.6, u_time)) * step(sec, 0.5);
+    if (hush > 0.002) col = mix(col, motif(10.0, g).rgb, hush);
+    float fin = smoothstep(0.0, 0.7, u_open);
+    if (fin > 0.002) col = mix(col, motif(11.0, g).rgb, fin);
+    col *= 0.90 + 0.20 * seed;
+  }
   float warm = smoothstep(0.55, 1.5, el);
   float pulse = 1.0 + 0.18 * exp(-fract(q) * 5.0) * (1.0 - 0.8 * u_calm);
   col *= (vec3(1.0, 0.74, 0.5) * warm * 0.75 + vec3(0.30, 0.42, 0.95) * 0.22) * pulse;

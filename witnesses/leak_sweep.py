@@ -34,6 +34,60 @@ RULES = [
 ]
 ALLOW = re.compile(r"sweep:allow(?:\s+([a-z\-]+))?")
 
+# Image metadata is where a vendor's name, a camera, a content-credentials block or a prompt hides, so a picture in the repository may hold its pixels and one line of our own: a comment that starts "AI-made"
+# (or "Test pattern", the label of a stand-in made by code that is not AI-made).
+# The structure is read (chunks of a PNG, segments of a JPEG), not searched for words: compressed pixels hold any four bytes by chance.
+IMAGE_EXT = {".png", ".jpg", ".jpeg"}
+IMAGE_LABEL = (b"AI-made", b"Test pattern")
+PNG_SIG = b"\x89PNG\r\n\x1a\n"
+PNG_PLAIN = {b"IHDR", b"PLTE", b"tRNS", b"IDAT", b"IEND"}
+JPEG_PLAIN = {0xC0, 0xC1, 0xC2, 0xC4, 0xDB, 0xDD, 0xDA}           # frame headers, tables, restart interval, scan
+
+
+def scan_image(rel, data):
+    """Hits for one PNG or JPEG: anything in it that is not pixels or our own label."""
+    def hit(why):
+        return {"file": rel, "line": 0, "rule": "image-metadata", "why": why}
+    if data.startswith(PNG_SIG):
+        pos, seen_end = 8, False
+        while pos + 8 <= len(data):
+            n, t = int.from_bytes(data[pos:pos + 4], "big"), data[pos + 4:pos + 8]
+            body = data[pos + 8:pos + 8 + n]
+            if t == b"tEXt":
+                if not body.partition(b"\0")[2].startswith(IMAGE_LABEL):
+                    return [hit("png text chunk that is not our label")]
+            elif t not in PNG_PLAIN:
+                return [hit("png chunk " + t.decode("latin-1"))]
+            pos += 12 + n
+            if t == b"IEND":
+                seen_end = True
+                break
+        if not seen_end:
+            return [hit("png without IEND")]
+        return [hit("bytes after the png's end")] if pos != len(data) else []
+    if data[:2] == b"\xff\xd8":
+        pos = 2
+        while pos + 4 <= len(data) and data[pos] == 0xFF:
+            m = data[pos + 1]
+            n = int.from_bytes(data[pos + 2:pos + 4], "big")
+            body = data[pos + 4:pos + 2 + n]
+            if m == 0xFE:
+                if not body.startswith(IMAGE_LABEL):
+                    return [hit("jpeg comment that is not our label")]
+            elif m == 0xE0:
+                if not body.startswith(b"JFIF\0"):
+                    return [hit("jpeg APP0 that is not JFIF")]
+            elif m not in JPEG_PLAIN:
+                return [hit("jpeg segment 0xFF%02X" % m)]
+            if m == 0xDA:
+                break
+            pos += 2 + n
+        end = data.rfind(b"\xff\xd9")
+        if end < 0:
+            return [hit("jpeg without EOI")]
+        return [hit("bytes after the jpeg's end")] if end + 2 != len(data) else []
+    return [hit("not a png or a jpeg by its first bytes")]
+
 
 def load_private(path):
     if not path or not os.path.isfile(path):
@@ -77,6 +131,14 @@ def sweep(root, private_file=None):
             p = os.path.join(d, f)
             rel = os.path.relpath(p, root)
             ext = os.path.splitext(f)[1].lower()
+            if ext in IMAGE_EXT:
+                try:
+                    data = open(p, "rb").read()
+                except OSError:
+                    continue
+                scanned += 1
+                hits += scan_image(rel, data)
+                continue
             if ext not in TEXT_EXT and f not in {"LICENSE", "NOTICE", "Makefile", ".gitignore"}:
                 # unknown extension: only scan if it looks like text
                 try:
@@ -105,7 +167,7 @@ def main(argv=None):
         print(json.dumps(r, indent=1))
     else:
         for h in r["hits"]:
-            print("%s:%d: %s" % (h["file"], h["line"], h["rule"]))
+            print("%s:%d: %s%s" % (h["file"], h["line"], h["rule"], (" (" + h["why"] + ")") if h.get("why") else ""))
         print("leak sweep: %d files, %d private strings, %d hits -> %s" % (r["files_scanned"], r["private_strings"], len(r["hits"]), "CLEAN" if r["clean"] else "HITS"))
     return 0 if r["clean"] else 1
 

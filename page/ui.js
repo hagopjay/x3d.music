@@ -31,6 +31,7 @@
     this.app = app; this.root = root;
     this.mode = 'minimal'; this.corner = 'bl'; this.seeking = false; this.lastLyric = null; this.lastHarmony = -1;
     this.started = false;
+    this.cards = null;                                      // page/cards.js, when the build shipped any animated pictures (boot.js sets it)
 
     // ----- the title card, which is also the Play button the browser needs
     var splash = this.splash = el('div', 'ls-splash', null, root);
@@ -41,6 +42,8 @@
     this.playBig.type = 'button'; this.playBig.disabled = true;
     this.playBig.addEventListener('click', function () { self.begin(); });
     this.splashSmall = el('p', 'ls-small', 'Sound starts only when you press Play. Every light is a real note of the score.', splash);
+    this.splashAi = el('p', 'ls-splash-ai', '', splash);          // says so when a generated picture moves behind the title
+    this.splashAi.hidden = true;
 
     // ----- the corner
     var c = this.card = el('div', 'ls-ui ls-corner', null, root);
@@ -113,8 +116,14 @@
   LoomUI.prototype.cycle = function () { this.setMode(MODES[(MODES.indexOf(this.mode) + 1) % MODES.length]); };
   LoomUI.prototype.moveCorner = function () { this.corner = CORNERS[(CORNERS.indexOf(this.corner) + 1) % CORNERS.length]; this.card.setAttribute('data-corner', this.corner); this.root.setAttribute('data-corner', this.corner); };
 
+  /** The title card on or off, and the picture behind it with it. */
+  LoomUI.prototype._splash = function (show) {
+    this.splash.hidden = !show;
+    if (this.cards) this.cards.splash(show);
+  };
+
   LoomUI.prototype.onLoading = function (p) {
-    this.splash.hidden = false; this.playBig.disabled = true;
+    this._splash(true); this.playBig.disabled = true;
     this.splashPiece.textContent = p.title + ' · ' + p.by;
     this.splashNote.textContent = 'Loading the world and its sound';
     this.showCredits(false);
@@ -134,7 +143,11 @@
     (p.credits || []).forEach(function (line, i) { el('p', null, line, this.credBody); }, this);
     if (p.ai && p.ai.length) el('p', 'ls-aicred', 'AI-made in this scene: ' + p.ai.join('; ') + '.', this.credBody);
     else el('p', 'ls-aicred', 'Nothing in this scene is AI-made: the sound is synthesised in code from the score, the pictures are drawn by code.', this.credBody);
-    if (this.started) this.splash.hidden = true;
+    var shared = this.app.cfg.pageAi || [];
+    if (shared.length) el('p', 'ls-aicred', 'Also AI-made, around the pieces: ' + shared.join('; ') + '.', this.credBody);
+    this.splashAi.textContent = shared.length ? 'AI-made: ' + shared.join('; ') + '.' : '';
+    this.splashAi.hidden = !shared.length;
+    if (this.started) this._splash(false);
     this.syncPlay();
   };
 
@@ -142,7 +155,7 @@
   LoomUI.prototype.begin = function () {
     var self = this;
     this.started = true;
-    this.app.play().then(function () { self.splash.hidden = true; self.root.setAttribute('data-started', '1'); self.syncPlay(); }, function (e) { self.splashNote.textContent = 'Sound could not start: ' + e; });
+    this.app.play().then(function () { self._splash(false); self.root.setAttribute('data-started', '1'); self.syncPlay(); }, function (e) { self.splashNote.textContent = 'Sound could not start: ' + e; });
   };
 
   LoomUI.prototype.toggle = function () {
@@ -158,7 +171,10 @@
     this.root.setAttribute('data-playing', on ? '1' : '0');
   };
 
-  LoomUI.prototype.showCredits = function (on) { this.credits.setAttribute('data-show', on ? '1' : '0'); };
+  LoomUI.prototype.showCredits = function (on) {
+    this.credits.setAttribute('data-show', on ? '1' : '0');
+    if (this.cards) this.cards.credits(on);
+  };
 
   LoomUI.prototype.onFrame = function (t) {
     var app = this.app, m = app.meta;
@@ -198,9 +214,9 @@
   LoomUI.prototype.noteInfo = function (n, what, extra) {
     var m = this.app.meta;
     if (!m || n == null || !m.notes[n]) return null;
-    var r = m.notes[n], inst = m.inst[r[0]];
-    var q = global.LoomQuarters(m.tempo, r[3]), rel = q - m.pickup, bar = rel < 0 ? 0 : 1 + Math.floor(rel / m.beats + 1e-9);
-    var beat = rel < 0 ? 1 + (m.beats - m.pickup) + q : 1 + (rel % m.beats);
+    // bar and beat are the score card's own record of the note (columns 5 and 6 of its row), not a sum redone from its seconds: the table keeps four decimals, and a note that sits on a bar line
+    // (the Ode's choir has one at 280 quarters) could be put on the bar before it with beat 5 by a rounding. The transport's bar and beat (where()) are still worked out from the clock.
+    var r = m.notes[n], inst = m.inst[r[0]], bar = r[5], beat = r[6];
     return {
       what: what, line1: pitchName(r[1]) + ' · ' + inst,
       line2: 'bar ' + bar + ' · beat ' + (Math.round(beat * 100) / 100) + ' · ' + (r[7] === 0 ? 'composer' : 'arrangement') + ' · velocity ' + r[2],

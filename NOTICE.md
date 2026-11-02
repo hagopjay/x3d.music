@@ -12,6 +12,7 @@ Which folder carries which licence, and who must be credited. The leak sweep and
 | `sources/ode-theme.musicxml`, `score/ode.score.json`, `tracks/ode.*` | MIT for the encoding; the melody is public domain | The theme is Beethoven's (1824), encoded by hand from the public-domain tradition |
 | Audio made from the Ode card (`build/audio/ode/`, nothing sampled) | MIT; the melody is public domain | Synthesised in code from our own encoding |
 | Audio made from the Turca card | CC BY-NC-SA 4.0 (the row above), and the piano's credit below travels with it | The piano is a recorded instrument; every other voice is synthesised |
+| `art/` (the generated pictures the worlds can use, and `art/manifest.json`) | CC BY 4.0, as a default | AI-made, rebuilt from their pixels alone (see "AI-made material" below). The licence is the owner's to change; the default asks for credit and nothing else |
 | `docs/` | MIT | Our own text |
 
 Commercial use of anything derived from the *Alla Turca* score card needs a fresh hand encoding of the 1878 edition (public domain) that does not use the file credited below. That is listed as longer-term work, not done.
@@ -47,11 +48,21 @@ Listed as they are added. A sample library is named here with its licence and th
 | x3d_mcp validator (fork) | Grammar and Meaning witnesses | Web3D Consortium Open-Source License |
 | `loom_gate.py`, `loom_receipt.py` | Traps and Receipts witnesses | as published by their repository |
 | Playwright 1.63.0, Chrome for Testing 153 | Behaviour, Host, Eyes, Sync and Fps witnesses and the P0 probes; test tools, not shipped | Apache-2.0 (Playwright); the browser's own notices |
-| ffmpeg 6.1.1 | Encodes the AAC `.mp4` and `.mp3` listening copies and the audio probe files, and gives the Ear witness its second loudness and true-peak reading; an external tool, not shipped | per its build (the Ubuntu 6.1.1 build is configured with `--enable-gpl`) |
+| ffmpeg 6.1.1 | Encodes the AAC `.mp4` and `.mp3` listening copies and the audio probe files, re-encodes the animated cards for the page, and gives the Ear witness its second loudness and true-peak reading; an external tool, not shipped | per its build (the Ubuntu 6.1.1 build is configured with `--enable-gpl`) |
 | pytest, numpy, lxml, jsonschema, xmlschema, rdflib, x3d | Witnesses and generators; not shipped | MIT or BSD, see each project |
+| Pillow | Rebuilds the generated pictures from their pixels, weaves the Ode's tapestry from one, writes the posters; not shipped | MIT-CMU (HPND) |
 
 Our own code is MIT and calls pedalboard and DawDreamer at run time; this repository contains none of their code. What a licence like the GPL says about the sound those programs help make is a question this file does not settle (the audio carries no part of their code).
 
 ## AI-made material
 
-Pictures, video and voices made with generative tools are labelled AI-made wherever they appear: the title card, the end credits and the caption of every shared still. Prompts and their sha256 hashes are in `docs/PROMPTS.md`.
+Pictures, video and voices made with generative tools are labelled AI-made wherever they appear: the corner note and the end credits of each piece, the cards around the pieces (the picture behind the title, each opening, the picture behind the end card), and the caption of every shared still. Prompts and the sha256 of each are in `docs/PROMPTS.md`; the private ledger that records what each call cost is not part of this repository.
+
+| What | Where it is used | Kept here |
+|---|---|---|
+| The tapestry's picture | The Ode: a generated picture, fitted to the loom's five threads, so every cell of it is a thread laid for a real note (`gen/picture_ode.py`) | `art/ode-tapestry.png`, rebuilt from the generated picture's pixels alone: no metadata of the original is kept, and the file carries one comment of ours that says it is AI-made |
+| The twelve tile motifs | The Turca's dome: one Iznik-style tile picture for each section, one for the hush before the first note and one for the final chord (`gen/shaders/dome_fs.glsl`) | `art/dome-motifs.jpg`, an atlas of twelve tiles, built the same way |
+| The animated cards | A moving picture behind the title card and behind the end card, and an opening for each piece (`page/cards.js`) | Not kept here: they are video, over this repository's limit for media. `tools/prep_cards.py` makes them from the generated clips; a build without them is a page without cards |
+| Backdrops | Not on the page yet: three generated clips of rooms are being rebuilt as splat worlds | Not kept here |
+
+Every world builds and passes its witnesses without any of these: `art/manifest.json` has a switch for each picture (`LOOM_ART=procedural` builds the stand-ins drawn by code), and a picture whose file does not match the manifest is never used. A picture is an upgrade of the scenery and never part of the music, which is synthesised in code from the score cards.
