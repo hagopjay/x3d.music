@@ -45,7 +45,7 @@ A red witness stops the build. It is fixed, never explained away.
 
 ```
 sources/    the kern file, the hand-encoded Ode theme, sample manifests (no big binaries)
-score/      build_score.py  ->  ode.score.json, turca.score.json
+score/      build_score.py  ->  ode.score.json, turca.score.json (schema in docs/SCORE-SCHEMA.md)
 audio/      instruments (Faust), render, mix and master scripts
 tracks/     feature tracks sampled at 60 Hz
 gen/        world generators, X3D writer helpers, shaders
@@ -54,7 +54,7 @@ blender/    film scripts
 witnesses/  the checks above
 receipts/   one Loom Receipt per artifact
 runs/       per-run witness results
-docs/       FACTS.md, DECISIONS.md, PROMPTS.md, PROBES.md (and p0/, the raw probe record)
+docs/       FACTS.md, DECISIONS.md, PROMPTS.md, PROBES.md (and p0/, the raw probe record), P1-SCORES.md, SCORE-SCHEMA.md, HARMONY.md
 tools/      pins.json (every checker pinned), fetch_xite.py
 build/      outputs (git-ignored)
 ```
@@ -64,7 +64,7 @@ build/      outputs (git-ignored)
 | Phase | What | State |
 |---|---|---|
 | P0 | Set-up and probes | done; the probe report is `docs/PROBES.md` |
-| P1 | Score cards | not started |
+| P1 | Score cards | built; the Score witness checks both against their sources (`docs/P1-SCORES.md`) |
 | P2 | The two masters | not started |
 | P3 | The worlds, live | not started |
 | P4 | Generated media | not started |

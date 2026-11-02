@@ -7,7 +7,7 @@ Grades: **C** confirmed by a command or file whose source is named; **L** likely
 | Fact | Value | Grade, source |
 |---|---|---|
 | *Rondo alla Turca* score | Humdrum kern of the Alte Mozart-Ausgabe (1878), `craigsapp/mozart-piano-sonatas`, `kern/sonata11-3.krn` at commit `0f1f49d`: two staves, 2/4, `*MM112`, a pickup plus 128 bars, 1,613 written note heads, MIDI range 38 to 88 | C, music21 10.5.2 |
-| Its form | Twelve labelled sections A to J with their own repeat plan; played with every repeat it runs 224 bars, 448 quarter notes: 4:00 at q = 112, 3:33 at q = 126 | C, section script |
+| Its form | Twelve labelled sections A to J with their own repeat plan (21 passes); played with every repeat it runs 224 bars (numbered barlines passed) and **447** quarter notes, not 448: 3:59.5 at q = 112, 3:32.9 at q = 126. The first ending is a half bar, the second a whole bar | C, kern reader and Score witness (P1) |
 | Its licence | CC BY-NC-SA 4.0 (attribution, non-commercial, share-alike) for the kern file and everything derived from it; the 1878 edition itself is public domain | C, LICENSE.txt in that repository |
 | *Ode to Joy* source | No file fetched: the theme is short and public domain, so it is hand-encoded as MusicXML | L |
 | music21's own corpus | Holds neither piece | C |
@@ -42,3 +42,13 @@ Grades: **C** confirmed by a command or file whose source is named; **L** likely
 ## Limits of the page host (from the page contract)
 
 A published page is one HTML file plus supporting files; each file at most 16 MB, one publish at most 64 MB, one version at most 256 MB, standard web media types only. Large arrays ship as gzip plus base64 `.txt` parts of at most 9 MB and are decoded in the page. `.x3d` files go out as `application/xml` with the DOCTYPE stripped. (L, contract text; the first stop-and-show page measures what the host really serves.)
+
+## The score cards (P1, see P1-SCORES.md)
+
+| Fact | Value | Grade, source |
+|---|---|---|
+| Written note heads in the kern file | 1,613 (right hand 790, left hand 776, right hand's second voice 47; 189 grace notes); the project's own reader and music21 10.5.2 agree on every head | C, Score witness S1 |
+| Section extents | By content: A 1-8, B 9-24, C 25-32, D 33-40, E 41-56, F 57-64, G 65-72, H 73-88, I 89-95, I1 96, I2 97, J 98-128 (the file puts each `*>` label after the barline it names) | C |
+| Dynamics in the file | p, f, sfp and two `<` hairpins, 14 markings in all | C |
+| Ties in the kern file | None. Slurs 130, staccato 339, arpeggio marks 24, trills 2 | C |
+| The Ode theme | 16 written bars, 63 note heads, 62 notes after the one tie; a statement is 16 bars, or 24 with bars 9 to 16 repeated | C, music21 10.5.2 on the hand-encoded MusicXML |

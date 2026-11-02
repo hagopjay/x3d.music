@@ -1,0 +1,75 @@
+{
+ "schema": "loomsong.receipt/1",
+ "command": "python3 -I score/build_score.py",
+ "SOURCE_DATE_EPOCH": "1793491200",
+ "python": "3.13",
+ "inputs": [
+  {
+   "path": "sources/sonata11-3.krn",
+   "sha256": "20986000444bfce93da6f23daf65663dfee20f25d2988c8e7635e29eb91bb0ab",
+   "bytes": 16148
+  },
+  {
+   "path": "sources/ode-theme.musicxml",
+   "sha256": "30e2f01f9aa95d58244ab9ad777dcf946d07067b941ad2f417cd956574bb2482",
+   "bytes": 11680
+  },
+  {
+   "path": "score/build_score.py",
+   "sha256": "72a2a0c46e046218690eb43064b7327c94553dd6b63edfe12711ad25967bb200",
+   "bytes": 1567
+  },
+  {
+   "path": "score/cardlib.py",
+   "sha256": "bd09b34aa08d6404fdd2811e04c1dca162d4d00e5e0ac9f22aed616f8ecb360d",
+   "bytes": 5157
+  },
+  {
+   "path": "score/harmony.py",
+   "sha256": "3d7ecc3b2f80bd5284d112da68745b3845e470d71f0a8ed0528d692133614b58",
+   "bytes": 7458
+  },
+  {
+   "path": "score/kern.py",
+   "sha256": "21796dcbd188bb72a6926f3f97380430b9343787aabb508e5956a451908e69f4",
+   "bytes": 11127
+  },
+  {
+   "path": "score/ode.py",
+   "sha256": "0feff9791ae076d5c0d0edd4a7a39fe192cdb2b85cc5520a226a8cc507591b83",
+   "bytes": 10835
+  },
+  {
+   "path": "score/tracks.py",
+   "sha256": "e54ace217572e0b038de319f022d4fd082773f6d29883f566d9f251da9f9301c",
+   "bytes": 5683
+  },
+  {
+   "path": "score/turca.py",
+   "sha256": "03d793e0c46041c028130cdafa18f218182637b5d014d8cf73a5eef354a79333",
+   "bytes": 8979
+  }
+ ],
+ "outputs": [
+  {
+   "path": "score/turca.score.json",
+   "sha256": "3cc8110d0fb06c477e19c2123919a8e52ad7210bcbc36bd46bdf6deb22d203a9",
+   "bytes": 649272
+  },
+  {
+   "path": "score/ode.score.json",
+   "sha256": "54798278221ef90f44e762b2e10d1cee8f74e5c65e5bcd2e2d6bb41d1b5eb995",
+   "bytes": 94001
+  },
+  {
+   "path": "tracks/turca.tracks.json",
+   "sha256": "c232cc560e0dc3ac1302592f3c562a8d9b92b212baad43f04f14181dd9315bd0",
+   "bytes": 341606
+  },
+  {
+   "path": "tracks/ode.tracks.json",
+   "sha256": "2f94a31088c82df8bdb5b4affa5c394b5b03e0eab52914cc9910df1c74cdf777",
+   "bytes": 331975
+  }
+ ]
+}

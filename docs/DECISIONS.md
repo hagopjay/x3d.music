@@ -37,3 +37,29 @@ The preview video model named in the spec as the first choice is reachable only 
 ## D-007 (2 Nov 2026) Receipts for generated files
 
 `witnesses/receipts.py` records the command, the inputs' and outputs' sha256 and sizes, and a check rebuilds and compares. The Loom's own `loom_receipt.py` stays for Blender-made assets. Audio probe files are not receipted (their bytes depend on the encoder build); the masters' receipts will record the tool versions beside the hashes.
+
+## D-008 (2 Nov 2026) Note ids: the last digit is the rep
+
+`<piece>.<section><rep>.<instrument>.<voice>.<counter>` with a single-digit rep, so `turca.I11...` is the first ending (section `I1`, first pass) and `turca.I2...` is section `I` in its second pass. The two can never collide because the rep is always the last character of that part.
+*Why:* the kern file names its endings `I1` and `I2`, which would clash with "section I, rep 1 and 2" in the spec's id format. *Undo:* rename the endings (for example `Ea`, `Eb`) in `score/turca.py` and rebuild.
+
+## D-009 (2 Nov 2026) Bars are counted on the performed grid; the file's numbers are kept beside them
+
+Bar 0 is the Turca's upbeat (beat 2 of a 2/4 bar). `bar` and `beat` come from the performed quarter position, so a repeat sign closes bar 8 with the next pass's upbeat and every pass is an even number of quarters. The file's own measure numbers stay as `kbar`. "224 bars performed" means numbered barlines passed in plan order, which is what the spec counted; the performed length is 447 quarters, not 448 (P1-SCORES.md, item 2).
+*Why:* a note's place in the bar must follow from where it sounds; the printed number would put a pass's upbeat in the wrong bar.
+
+## D-010 (2 Nov 2026) What a card's performance fields mean
+
+`dur` is the notated length in seconds; staccato, arpeggio and trill are flags the renderer interprets. A grace note takes no written time: in performance it sits just before the beat of the note it decorates, a 32nd (1/8 quarter) each, 14 below the velocity of its note. Velocity: p 50, f 96, sfp 114 then p, `<` ramps to the next marking. The Ode melody is stored at written pitch with an `oct` shift for where the arrangement sounds it.
+*Why:* the Score witness compares written pitch and exact fractions, so register, articulation and grace placement must not change those fields. *Undo:* change `GRACE_Q` and `VEL` in `score/cardlib.py`; the cards, tracks and receipts rebuild.
+
+## D-011 (2 Nov 2026) Tracks are stored uncompressed
+
+`tracks/*.tracks.json` hold int16 little-endian in base64. The gzip-plus-base64 parts the page decodes with `DecompressionStream` are made from them when the page is built (`score/tracks.py:page_part`).
+*Why:* compressed bytes depend on the zlib version that wrote them, which would make the receipt fail on a different machine.
+
+## D-012 (2 Nov 2026) Harmony: labelled for the Turca, authored for the Ode
+
+The Turca's chords are labelled by a transparent rule against a hand-checked key table; the Ode's are written out by hand because the spec says the harmony is ours (`docs/HARMONY.md`). Both are grade L; only the arithmetic on them (Roman numerals, tension, contiguity) is checked by a witness.
+*Undo:* edit `KEYS` in `score/turca.py` or `HARM` in `score/ode.py`.
+

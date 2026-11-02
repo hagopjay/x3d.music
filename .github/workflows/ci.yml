@@ -1,7 +1,7 @@
 name: ci
 
-# Witnesses that run on every commit: the leak sweep and unit tests (sweep job); then Grammar, Meaning, Traps, Receipts and the browser probes (worlds job).
-# Score, Ear and the rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
+# Witnesses that run on every commit: the leak sweep and unit tests (sweep job); the Score witness and the score receipt (score job); Grammar, Meaning, Traps, Receipts and the browser probes (worlds job).
+# Ear and the rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
 
 # Pull requests are checked once (the merge result); main is checked after every merge. A branch push alone does not start a second, duplicate run.
 on:
@@ -31,8 +31,30 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Leak sweep (keys, cloud paths, private links, vendor names, costs)
         run: python3 -I witnesses/leak_sweep.py --root .
-      - name: Unit tests for the sweep and the trap rules
-        run: python3 -I -m pytest -q witnesses
+      - name: Unit tests for the sweep and the trap rules (the Score witness's tests run in the score job, which has music21)
+        run: python3 -I -m pytest -q witnesses --ignore=witnesses/test_score_check.py
+
+  score:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -r requirements-score.txt
+      - name: Unit tests (kern reader, card library, spiral array, tracks) and the Score witness's damaged-card cases
+        run: python3 -I -m pytest -q score witnesses/test_score_check.py
+      - name: Receipts (a rebuild from the notated sources gives the same bytes)
+        run: python3 -I witnesses/receipts.py check receipts/p1-scores.json
+      - name: Score witness (composer notes equal the source, 0 missing and 0 extra; tracks equal a recomputation)
+        run: python3 -I witnesses/score_check.py --out build/runs/score.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p1-score-run
+          path: build/runs
+          retention-days: 14
 
   worlds:
     runs-on: ubuntu-24.04

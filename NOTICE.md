@@ -6,7 +6,7 @@ Which folder carries which licence, and who must be credited. The leak sweep and
 
 | Path | Licence | Why |
 |---|---|---|
-| Code: `witnesses/`, `gen/`, `page/`, `audio/` (scripts), `tools/`, `blender/`, `tracks/` (scripts), `.github/` | MIT (`LICENSE`) | Our own code |
+| Code: `witnesses/`, `gen/`, `page/`, `audio/` (scripts), `score/` (scripts), `tools/`, `blender/`, `tracks/` (scripts), `.github/` | MIT (`LICENSE`) | Our own code |
 | `sources/sonata11-3.krn` | CC BY-NC-SA 4.0 | Unmodified copy of the Humdrum encoding credited below |
 | `score/turca.score.json`, `tracks/turca.*`, and every audio, frame and film derived from the *Alla Turca* score card | CC BY-NC-SA 4.0 | Adapted from the encoding credited below; share-alike applies to adaptations |
 | `sources/ode-theme.musicxml`, `score/ode.score.json`, `tracks/ode.*` | MIT for the encoding; the melody is public domain | The theme is Beethoven's (1824), encoded by hand from the public-domain tradition |
@@ -33,7 +33,8 @@ Listed as they are added. A sample library is named here with its licence and th
 | Item | Use | Licence |
 |---|---|---|
 | X_ITE 16.5.1 | The X3D browser, shipped as the page's own files | MIT |
-| music21, pedalboard, pyloudnorm, DawDreamer (with Faust), soundfile, mido, librosa | Score parsing, effects, loudness, synthesis, I/O | see each project |
+| music21 10.5.2 | The Score witness's second parser (not used by the builders, not shipped) | BSD-3-Clause |
+| pedalboard, pyloudnorm, DawDreamer (with Faust), soundfile, mido, librosa | Effects, loudness, synthesis, I/O (P2) | see each project |
 | x3d_mcp validator (fork) | Grammar and Meaning witnesses | Web3D Consortium Open-Source License |
 | `loom_gate.py`, `loom_receipt.py` | Traps and Receipts witnesses | as published by their repository |
 | Playwright 1.63.0, Chrome for Testing 153 | Behaviour, Host, Eyes, Sync and Fps witnesses and the P0 probes; test tools, not shipped | Apache-2.0 (Playwright); the browser's own notices |
