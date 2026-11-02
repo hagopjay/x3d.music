@@ -376,3 +376,26 @@ def write_world(world, title, description, extra=None, background=(0.0, 0.0, 0.0
     with open(os.path.join(out, world.card.piece + ".report.json"), "w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(st, indent=1, sort_keys=True) + "\n")
     return st
+
+
+# ---- small helpers both worlds use ---------------------------------------------------------------
+TAU = 2 * math.pi
+X_AXIS, Y_AXIS, Z_AXIS = (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)
+
+
+def lin(r, g, b):
+    """sRGB bytes to linear light (the shaders work in linear light)."""
+    return tuple((c / 255.0) ** 2.2 for c in (r, g, b))
+
+
+def vec(*v):
+    return " ".join(num(x, 4) for x in v)
+
+
+def lerp3(a, b, s):
+    return tuple(a[i] + (b[i] - a[i]) * s for i in range(3))
+
+
+def orbit(c, r, y, a0, a1):
+    """A function of s in 0..1: a point circling c at radius r and height y from angle a0 to a1 (0 is +Z)."""
+    return lambda s: (c[0] + r * math.sin(a0 + (a1 - a0) * s), y, c[2] + r * math.cos(a0 + (a1 - a0) * s))

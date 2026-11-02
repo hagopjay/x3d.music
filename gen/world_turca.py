@@ -19,9 +19,7 @@ import meshlib as M                                                         # no
 from meshlib import T, S, R, compose, Mesh, merge                           # noqa: E402
 import worldlib as W                                                        # noqa: E402
 from worldlib import N, mf, num, route, Card, EventTable, Shot, World       # noqa: E402
-
-TAU = 2 * math.pi
-Y_AXIS, X_AXIS, Z_AXIS = (0.0, 1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)
+from worldlib import TAU, X_AXIS, Y_AXIS, Z_AXIS, lin, vec, lerp3, orbit    # noqa: E402,F401
 
 # ---- layout ---------------------------------------------------------------------------------------
 LANE = 0.02                                   # metres between neighbouring pins and between comb teeth
@@ -37,19 +35,10 @@ SHIFT_S = 0.32                                # the barrel slides to its next ba
 QPM = 126.0
 
 
-def lin(r, g, b):
-    """sRGB bytes to linear light (the shaders work in linear light)."""
-    return tuple((c / 255.0) ** 2.2 for c in (r, g, b))
-
-
 STONE, PLASTER, BRASS, STEEL = lin(190, 160, 120), lin(214, 176, 128), lin(232, 188, 108), lin(176, 184, 196)
 BRONZE, ALCOVE, WOOD = lin(150, 92, 38), lin(70, 82, 130), lin(150, 100, 60)
 PORCELAIN, COBALT, TURQUOISE, TOMATO = lin(236, 232, 220), lin(20, 60, 150), lin(24, 156, 156), lin(190, 52, 36)
 LAMP = ("u_lampI", "SFFloat", "inputOutput", 1.0)
-
-
-def vec(*v):
-    return " ".join(num(x, 4) for x in v)
 
 
 def sector_of(pc):
@@ -521,12 +510,6 @@ def barrel_motion(w, card, names):
 COMB = (0.0, BARREL_Y - 0.05, BARREL_Z + BARREL_R + 0.1)
 
 
-def lerp3(a, b, s):
-    return tuple(a[i] + (b[i] - a[i]) * s for i in range(3))
-
-
-def orbit(c, r, y, a0, a1):
-    return lambda s: (c[0] + r * math.sin(a0 + (a1 - a0) * s), y, c[2] + r * math.cos(a0 + (a1 - a0) * s))
 
 
 def shot_for(kind, t0, t1, i):
@@ -539,7 +522,7 @@ def shot_for(kind, t0, t1, i):
     if kind == "pins":
         return Shot(kind, t0, t1, lambda s: lerp3((sgn * 0.9, 3.15, -5.3), (sgn * 0.6, 2.95, -5.7), s), (0.0, 2.5, -7.9), fov=0.8)
     if kind == "teeth":
-        return Shot(kind, t0, t1, lambda s: lerp3((-0.55 * sgn, 2.25, -6.55), (-0.35 * sgn, 2.3, -6.75), s), (0.05 * sgn, 2.48, -7.55), fov=0.62)
+        return Shot(kind, t0, t1, lambda s: lerp3((0.5 * sgn, 3.45, -6.0), (0.25 * sgn, 3.0, -6.55), s), (0.0, 2.5, -7.2), fov=0.95)
     if kind == "floor_high":
         return Shot(kind, t0, t1, orbit((0, 0, 0), 5.0, 10.2, 0.2 * sgn, 0.55 * sgn), (0.0, 0.0, -0.8), fov=1.0, up=(0.0, 0.0, -1.0) if False else (0.0, 1.0, 0.0))
     if kind == "floor_low":
