@@ -239,7 +239,7 @@ jobs:
       - name: Hover tests (the card names the note under the pointer, checked against the score card)
         if: ${{ !cancelled() }}
         run: node witnesses/hover_test.mjs
-      - name: Report tests (the page's diagnostics: off without a store; with one, a small document, play and pause noticed, one write at a time)
+      - name: Report tests (the page's diagnostics are off without a store; with one, a small document, play and pause noticed, one write at a time)
         if: ${{ !cancelled() }}
         run: node witnesses/report_test.mjs
       - name: Host witness (both pieces start to end under the strict policy copy, 0 blocked requests, the real audio clock runs)
