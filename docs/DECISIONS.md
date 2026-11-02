@@ -63,3 +63,33 @@ Bar 0 is the Turca's upbeat (beat 2 of a 2/4 bar). `bar` and `beat` come from th
 The Turca's chords are labelled by a transparent rule against a hand-checked key table; the Ode's are written out by hand because the spec says the harmony is ours (`docs/HARMONY.md`). Both are grade L; only the arithmetic on them (Roman numerals, tension, contiguity) is checked by a witness.
 *Undo:* edit `KEYS` in `score/turca.py` or `HARM` in `score/ode.py`.
 
+## D-013 (2 Nov 2026) Only the Turca's piano is a recording; every other voice is synthesised
+
+The Turca's written notes are played by a recorded grand (Salamander Grand Piano V3, CC BY 3.0: 17 keys by 8 velocity layers, 212 MB, every file's sha256 in `sources/salamander.manifest.json`). Every other voice in both pieces, and the whole Ode, is a Faust program rendered through DawDreamer.
+*Why:* a piano is the one sound an ear holds against a real instrument, and everything else can be shaped in code. A synthesised band keeps the credits to one and makes each render a function of the card and the pinned samples. *Undo:* voice another instrument from recordings by adding it to `audio/rack.py`; `NOTICE.md` names its source and licence first.
+
+## D-014 (2 Nov 2026) The Ode's tune is routed section by section, on the card
+
+The composer line `mel` keeps its written pitch. The card's `routing` table says which voices sound it in each section, how many octaves from where the card puts it and how much louder or softer: the first statement is bass and strings, the second strings and electric piano, the third strings and lead, the fourth strings (and an octave down), brass an octave down and lead, and the coda adds the choir. Check S16 holds every route to declared instruments, whole octaves of at most 3 and velocity offsets of at most 30.
+*Why:* the spec lets the tune pass between voices, while the Score witness compares composer notes in written pitch; the voicing lives in a table and the notes stay as notated. *Undo:* edit `ROUTING` in `score/arrange_ode.py`, rebuild the cards and tracks, rewrite `receipts/p1-scores.json` and `receipts/p2-audio.json`.
+
+## D-015 (2 Nov 2026) The masters aim at minus 14.00 LUFS with a true-peak ceiling of minus 1.5 dBTP, held by our own limiter
+
+pyloudnorm sets the loudness; `mix.limit` holds the peak. pedalboard's limiter was tried first and was not transparent (a 0.5 impulse came out at 1.0). The ceiling is minus 1.5 because at minus 1.2 our meter read minus 1.20 and ffmpeg read minus 1.0, exactly on the spec's limit; at minus 1.5 they read minus 1.50 and minus 1.3.
+*Why:* streaming services normalise to about minus 14 LUFS, and the limit is minus 1.0 by any meter. *Undo:* the defaults of `mix.master`, then render again (`docs/MIX.md`).
+
+## D-016 (2 Nov 2026) CI judges the audio by thresholds, not by hashes
+
+`receipts/p2-audio.json` records the masters' sha256 and says they hold on the machine class that made them (three fresh renders gave the same bytes). The Faust voices are compiled by LLVM for the host CPU, so another machine may differ in the last bit while sounding the same (S). The CI audio job renders both pieces and runs the Ear witness; it does not compare hashes.
+*Why:* a receipt that goes red on a different CPU says nothing about the sound. *Undo:* once a runner's hashes are seen to match, the job can also run `receipts.py check receipts/p2-audio.json`.
+
+## D-017 (2 Nov 2026) The Ear witness reads onsets with a window that fits each sound
+
+Drums are read with a 128-sample window (2.7 ms), the piano with 1,024 (21 ms); the limits are a median of 5 ms and a 95th percentile of 15 ms over at least 20 isolated onsets, with graces, rolled chords and crowded hits left out.
+*Why:* measured on synthetic snares at exact sample positions, the piano's window reads a click 10.0 ms early and the drum window 1.0 ms early (C), so one window for both would have broken one of them. The witness is trusted for shifts (a sound moved by 20 ms reads 20 ms later) and not for absolute offset. *Undo:* `IMPULSIVE` and `PIANO` in `witnesses/ear.py`.
+
+## D-018 (2 Nov 2026) The score receipt covers the arrangement code
+
+P1's receipt listed the notated sources. P2 added the arrangement layers (`score/arrange_lib.py`, `arrange_turca.py`, `arrange_ode.py`), which change the card bytes, so they are now inputs of `receipts/p1-scores.json`; the receipt carries a note saying why it was rewritten. The composer notes did not change, and the Score witness shows it (S1: pitch, onset and duration equal the source, 0 missing and 0 extra).
+*Why:* a receipt that does not name the code that makes the bytes cannot see drift in that code. *Undo:* none needed.
+

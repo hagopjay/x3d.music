@@ -52,3 +52,20 @@ A published page is one HTML file plus supporting files; each file at most 16 MB
 | Dynamics in the file | p, f, sfp and two `<` hairpins, 14 markings in all | C |
 | Ties in the kern file | None. Slurs 130, staccato 339, arpeggio marks 24, trills 2 | C |
 | The Ode theme | 16 written bars, 63 note heads, 62 notes after the one tie; a statement is 16 bars, or 24 with bars 9 to 16 repeated | C, music21 10.5.2 on the hand-encoded MusicXML |
+
+## The masters (P2, see P2-AUDIO.md and MIX.md)
+
+| Fact | Value | Grade, source |
+|---|---|---|
+| Piano samples | Salamander Grand Piano V3, Alexander Holm, remapped to SFZ and FLAC by kinwie, CC BY 3.0; 17 keys by 8 velocity layers is 136 files, 212 MB, each with its sha256 in `sources/salamander.manifest.json` | C, the manifest, `tools/fetch_salamander.py` |
+| Voices | The Turca has 13 (the sampled piano plus 12 synthesised), the Ode 16 (all synthesised); 19 Faust programs in all, played through DawDreamer 0.9.0 | C, `report.json`, `audio/faust/` |
+| Notes rendered | Turca 6,555 (2,810 written, 3,745 arrangement); Ode 3,101 (327 written, 2,774 arrangement) | C, the cards |
+| Loudness | Both masters minus 14.00 LUFS by pyloudnorm 0.2.0 and minus 14.0 by ffmpeg 6.1.1 | C, Ear witness E2 |
+| True peak | Minus 1.50 dBTP by our 4x oversampling, minus 1.3 by ffmpeg, against a limit of minus 1.0 | C, Ear witness E3 |
+| Loudness range, correlation | Turca 5.9 LU and 0.544; Ode 7.5 LU and 0.688 | C, Ear witness E4, E6 |
+| Onsets against the card | Drums: median 1.0 ms, 95th percentile 1.2 ms (kick and snare, both pieces). Piano: median 2.5 ms, 95th 7.9 ms, with a detector whose own offset is not zero | C for the numbers, L for the cause, Ear witness E7 |
+| Reproducibility | Three fresh renders of each piece gave the same sha256 on one machine (Turca `ca1ba2b5...`, Ode `b4cbd676...`); another CPU may differ in the last bit | C on this machine, S elsewhere, `receipts/p2-audio.json` |
+| Tests | 43 audio unit tests, 24 Ear-witness tests, 37 Score-witness tests; 11 of 11 deliberate breakages of the audio code turn a test red | C, `audio/test_audio.py`, `witnesses/test_ear.py`, `witnesses/test_score_check.py`, `audio/mutants.py` |
+| Run time | A clean replay of the CI audio job (fresh virtualenv, empty sample cache, 4 cores): pip install 30 s, sample fetch 7 s, unit tests 12 s, mutation check 24 s, both masters 266 s (Ode stems 40.6 s and mix 78.1 s, Turca stems 38.2 s and mix 59.1 s), Ear witness 74 s, its tests 52 s; the masters came out with the receipt's sha256 | C, a log of that replay (not committed) |
+| Licences of the audio tools | pedalboard 0.9.26 and DawDreamer 0.9.0 are GPL-3.0 (their package metadata); our code is MIT and does not contain theirs | C, package metadata; what that means for the sound is not settled here (NOTICE.md) |
+| How it sounds | Nobody has listened; every level was set by meters | S |

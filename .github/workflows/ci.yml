@@ -1,7 +1,7 @@
 name: ci
 
-# Witnesses that run on every commit: the leak sweep and unit tests (sweep job); the Score witness and the score receipt (score job); Grammar, Meaning, Traps, Receipts and the browser probes (worlds job).
-# Ear and the rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
+# Witnesses that run on every commit: the leak sweep and unit tests (sweep job); the Score witness and the score receipt (score job); the audio unit tests, the mutation spot-check, a fresh render of both masters and the Ear witness (audio job);
+# Grammar, Meaning, Traps, Receipts and the browser probes (worlds job). The rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
 
 # Pull requests are checked once (the merge result); main is checked after every merge. A branch push alone does not start a second, duplicate run.
 on:
@@ -54,6 +54,47 @@ jobs:
         with:
           name: p1-score-run
           path: build/runs
+          retention-days: 14
+
+  audio:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      LOOMSONG_CACHE: ${{ github.workspace }}/.cache/loomsong
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install ffmpeg (the Ear witness reads loudness and true peak a second time with it)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -version | head -1
+      - run: pip install -r requirements-audio.txt
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.cache/loomsong/salamander
+          key: salamander-${{ hashFiles('sources/salamander.manifest.json') }}
+      - name: Fetch the piano samples (every file checked against sources/salamander.manifest.json)
+        run: python3 -I tools/fetch_salamander.py
+      - name: Unit tests (meters, limiter, sampler, routing, every voice and chain)
+        run: python3 -I audio/test_audio.py
+      - name: Mutation spot-check (eleven deliberate breakages of the audio code must each turn a test red)
+        run: python3 -I audio/mutants.py
+      - name: Render both masters from the score cards
+        run: python3 -I audio/render.py all
+      - name: Ear witness (two loudness tools, true peak, range, phase, onsets against the card, stem sum, sub band, ring-out)
+        run: python3 -I witnesses/ear.py --piece all --out build/runs/ear.json
+      - name: The Ear witness's own tests (damaged masters must turn it red; the real piano stem is read now that it exists)
+        run: python3 -I witnesses/test_ear.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p2-audio-run
+          path: |
+            build/runs
+            build/audio/*/report.json
           retention-days: 14
 
   worlds:
