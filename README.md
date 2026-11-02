@@ -45,16 +45,16 @@ A red witness stops the build. It is fixed, never explained away.
 
 ```
 sources/    the kern file, the hand-encoded Ode theme, sample manifests (no big binaries)
-score/      build_score.py  ->  ode.score.json, turca.score.json
-audio/      instruments (Faust), render, mix and master scripts
+score/      build_score.py  ->  ode.score.json, turca.score.json (schema in docs/SCORE-SCHEMA.md)
+audio/      the Faust voices, the piano sampler, render, mix and master scripts, unit tests and a mutation spot-check (audio/README.md)
 tracks/     feature tracks sampled at 60 Hz
 gen/        world generators, X3D writer helpers, shaders
-page/       the page: clock, SAI driver, interface
+page/       the page: clock, SAI driver, interface, hover, report; build_page.py lays out build/page
 blender/    film scripts
 witnesses/  the checks above
 receipts/   one Loom Receipt per artifact
 runs/       per-run witness results
-docs/       FACTS.md, DECISIONS.md, PROMPTS.md, PROBES.md (and p0/, the raw probe record)
+docs/       FACTS.md, DECISIONS.md, PROMPTS.md, PROBES.md (and p0/, the raw probe record), P1-SCORES.md, SCORE-SCHEMA.md, HARMONY.md, MIX.md, P2-AUDIO.md, P3-WORLDS.md
 tools/      pins.json (every checker pinned), fetch_xite.py
 build/      outputs (git-ignored)
 ```
@@ -64,9 +64,9 @@ build/      outputs (git-ignored)
 | Phase | What | State |
 |---|---|---|
 | P0 | Set-up and probes | done; the probe report is `docs/PROBES.md` |
-| P1 | Score cards | not started |
-| P2 | The two masters | not started |
-| P3 | The worlds, live | not started |
+| P1 | Score cards | built; the Score witness checks both against their sources (`docs/P1-SCORES.md`) |
+| P2 | The two masters | built: both at minus 14.00 LUFS, Score 51 of 51 and Ear 20 of 20; no human has listened yet (`docs/P2-AUDIO.md`, `docs/MIX.md`) |
+| P3 | The worlds, live | built: both worlds, the page and Learn-mode hover; the gate, Behaviour, Eyes (the program's part), the page, hover and report tests and the Host witness (110 steps a piece) are green; nobody has run it on a real GPU or listened, and the private preview writes its own report from the real host (`docs/P3-WORLDS.md`) |
 | P4 | Generated media | not started |
 | P5 | Improvement rounds | not started |
 | P6 | The films | not started |

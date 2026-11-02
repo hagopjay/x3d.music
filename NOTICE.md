@@ -6,10 +6,12 @@ Which folder carries which licence, and who must be credited. The leak sweep and
 
 | Path | Licence | Why |
 |---|---|---|
-| Code: `witnesses/`, `gen/`, `page/`, `audio/` (scripts), `tools/`, `blender/`, `tracks/` (scripts), `.github/` | MIT (`LICENSE`) | Our own code |
+| Code: `witnesses/`, `gen/`, `page/`, `audio/` (scripts and the Faust programs in `audio/faust/`), `score/` (scripts), `tools/`, `blender/`, `tracks/` (scripts), `.github/` | MIT (`LICENSE`) | Our own code |
 | `sources/sonata11-3.krn` | CC BY-NC-SA 4.0 | Unmodified copy of the Humdrum encoding credited below |
 | `score/turca.score.json`, `tracks/turca.*`, and every audio, frame and film derived from the *Alla Turca* score card | CC BY-NC-SA 4.0 | Adapted from the encoding credited below; share-alike applies to adaptations |
 | `sources/ode-theme.musicxml`, `score/ode.score.json`, `tracks/ode.*` | MIT for the encoding; the melody is public domain | The theme is Beethoven's (1824), encoded by hand from the public-domain tradition |
+| Audio made from the Ode card (`build/audio/ode/`, nothing sampled) | MIT; the melody is public domain | Synthesised in code from our own encoding |
+| Audio made from the Turca card | CC BY-NC-SA 4.0 (the row above), and the piano's credit below travels with it | The piano is a recorded instrument; every other voice is synthesised |
 | `docs/` | MIT | Our own text |
 
 Commercial use of anything derived from the *Alla Turca* score card needs a fresh hand encoding of the 1878 edition (public domain) that does not use the file credited below. That is listed as longer-term work, not done.
@@ -26,6 +28,11 @@ Changes made: the file is parsed to note events with exact rational onsets and d
 
 **Beethoven, Symphony No. 9 in D minor, Op. 125, finale** (first performed 1824). Public domain. Text of *An die Freude* by Friedrich Schiller (1785), public domain.
 
+**Salamander Grand Piano V3**, by Alexander Holm (a Yamaha C5 recorded at 48 kHz, 24 bit), remapped to SFZ and FLAC by kinwie: https://github.com/sfzinstruments/SalamanderGrandPiano. Licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/).
+> Used: 17 keys (D#2 to D#6) at 8 of the 16 velocity layers, 136 FLAC files, 212 MB. Each file's size and sha256 are in `sources/salamander.manifest.json`; `tools/fetch_salamander.py` fetches and checks them, and nothing of the recordings is committed.
+> Changes made: a note takes the nearest recorded key and is shifted by resampling by at most one semitone, the two layers either side of its velocity are blended, the start is trimmed to where the level first passes minus 50 dB under the recording's peak, and a release is added when the key goes up. The result is mixed with synthesised instruments, so what is heard is AI-made audio, not a recording of anyone playing the piece.
+> The credit is in the metadata of every master file and on the listening page.
+
 ## Samples and tools
 
 Listed as they are added. A sample library is named here with its licence and the commit or hash it was taken at before any audio made from it is published.
@@ -33,12 +40,17 @@ Listed as they are added. A sample library is named here with its licence and th
 | Item | Use | Licence |
 |---|---|---|
 | X_ITE 16.5.1 | The X3D browser, shipped as the page's own files | MIT |
-| music21, pedalboard, pyloudnorm, DawDreamer (with Faust), soundfile, mido, librosa | Score parsing, effects, loudness, synthesis, I/O | see each project |
+| music21 10.5.2 | The Score witness's second parser (not used by the builders, not shipped) | BSD-3-Clause |
+| pedalboard 0.9.26 | Effects and the master chain (P2) | GPL-3.0 (its package metadata). Installed from PyPI, never vendored or shipped here |
+| DawDreamer 0.9.0, with the Faust compiler | Plays the Faust voices (P2) | GPL-3.0 (its package metadata). Installed from PyPI, never vendored or shipped here |
+| pyloudnorm 0.2.0, soundfile 0.14.0, soxr 1.1.0, scipy 1.18.1, librosa 1.0.0 | Loudness, files, resampling, filters, analysis (P2) | MIT, BSD-3-Clause, LGPL-2.1-or-later, BSD-3-Clause, ISC (package metadata) |
 | x3d_mcp validator (fork) | Grammar and Meaning witnesses | Web3D Consortium Open-Source License |
 | `loom_gate.py`, `loom_receipt.py` | Traps and Receipts witnesses | as published by their repository |
 | Playwright 1.63.0, Chrome for Testing 153 | Behaviour, Host, Eyes, Sync and Fps witnesses and the P0 probes; test tools, not shipped | Apache-2.0 (Playwright); the browser's own notices |
-| ffmpeg 6.1.1 | Encodes the audio probe files now and the AAC masters later; an external tool, not shipped | per its build (LGPL or GPL) |
+| ffmpeg 6.1.1 | Encodes the AAC `.mp4` and `.mp3` listening copies and the audio probe files, and gives the Ear witness its second loudness and true-peak reading; an external tool, not shipped | per its build (the Ubuntu 6.1.1 build is configured with `--enable-gpl`) |
 | pytest, numpy, lxml, jsonschema, xmlschema, rdflib, x3d | Witnesses and generators; not shipped | MIT or BSD, see each project |
+
+Our own code is MIT and calls pedalboard and DawDreamer at run time; this repository contains none of their code. What a licence like the GPL says about the sound those programs help make is a question this file does not settle (the audio carries no part of their code).
 
 ## AI-made material
 

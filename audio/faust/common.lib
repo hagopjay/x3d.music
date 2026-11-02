@@ -1,0 +1,12 @@
+// Shared pieces of the Loomsong rack. Every voice follows the Faust polyphony convention: freq (Hz), gain (0 to 1, from MIDI velocity) and gate.
+import("stdfaust.lib");
+freq = hslider("freq", 440, 20, 20000, 0.01);
+gain = hslider("gain", 0.5, 0, 1, 0.001);
+gate = button("gate");
+trig = gate > gate';
+// One-shot exponential decay that starts at every rising edge of the gate and reaches -60 dB after d seconds, whatever the note length.
+ex(d) = trig : (+ ~ *(ba.tau2pole(d / 6.9078)));
+// Noise from a seeded generator, so a rebuild gives the same bytes.
+noise = no.noise;
+// Faust's polyphony wrapper looks for a shared effect after the voices; none is wanted here.
+effect = _, _;

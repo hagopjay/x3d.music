@@ -57,7 +57,10 @@ def main(argv):
         warnings = [f["rule"] for f in fs if f["severity"] == "warning"]
         report["files"][name] = {"ok": ok, "note": note, "errors": len(errors), "warnings": warnings, "expected_red": must is not None}
         bad += 0 if ok else 1
-        print("%s %-26s %s%s" % ("PASS" if ok else "FAIL", name, note, ("  [warnings: %s]" % ", ".join(warnings)) if warnings else ""))
+        counts = {}
+        for w in warnings:
+            counts[w] = counts.get(w, 0) + 1
+        print("%s %-26s %s%s" % ("PASS" if ok else "FAIL", name, note, ("  [warnings: %s]" % ", ".join("%d x %s" % (n, w) for w, n in sorted(counts.items()))) if warnings else ""))
     report["failed"] = bad
     if out:
         os.makedirs(os.path.dirname(out) or ".", exist_ok=True)

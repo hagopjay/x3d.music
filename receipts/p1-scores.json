@@ -1,0 +1,91 @@
+{
+ "schema": "loomsong.receipt/1",
+ "command": "python3 -I score/build_score.py",
+ "SOURCE_DATE_EPOCH": "1793491200",
+ "python": "3.13",
+ "inputs": [
+  {
+   "path": "sources/sonata11-3.krn",
+   "sha256": "20986000444bfce93da6f23daf65663dfee20f25d2988c8e7635e29eb91bb0ab",
+   "bytes": 16148
+  },
+  {
+   "path": "sources/ode-theme.musicxml",
+   "sha256": "30e2f01f9aa95d58244ab9ad777dcf946d07067b941ad2f417cd956574bb2482",
+   "bytes": 11680
+  },
+  {
+   "path": "score/build_score.py",
+   "sha256": "57122c3b6799ddeb5a91612569816d04bc394d215363dc35ea616650ed4b28ff",
+   "bytes": 2119
+  },
+  {
+   "path": "score/cardlib.py",
+   "sha256": "bd09b34aa08d6404fdd2811e04c1dca162d4d00e5e0ac9f22aed616f8ecb360d",
+   "bytes": 5157
+  },
+  {
+   "path": "score/harmony.py",
+   "sha256": "3d7ecc3b2f80bd5284d112da68745b3845e470d71f0a8ed0528d692133614b58",
+   "bytes": 7458
+  },
+  {
+   "path": "score/kern.py",
+   "sha256": "21796dcbd188bb72a6926f3f97380430b9343787aabb508e5956a451908e69f4",
+   "bytes": 11127
+  },
+  {
+   "path": "score/ode.py",
+   "sha256": "0feff9791ae076d5c0d0edd4a7a39fe192cdb2b85cc5520a226a8cc507591b83",
+   "bytes": 10835
+  },
+  {
+   "path": "score/tracks.py",
+   "sha256": "e54ace217572e0b038de319f022d4fd082773f6d29883f566d9f251da9f9301c",
+   "bytes": 5683
+  },
+  {
+   "path": "score/turca.py",
+   "sha256": "03d793e0c46041c028130cdafa18f218182637b5d014d8cf73a5eef354a79333",
+   "bytes": 8979
+  },
+  {
+   "path": "score/arrange_lib.py",
+   "sha256": "472d57e7025bc5af1f6d4a479f52f9837ee226d27249a0011049eac0b3baf32a",
+   "bytes": 4304
+  },
+  {
+   "path": "score/arrange_turca.py",
+   "sha256": "a65a74066964b5aa1f3412d2253c1fb89ca6433c7a7f9f4e336e319ada8eb2eb",
+   "bytes": 10393
+  },
+  {
+   "path": "score/arrange_ode.py",
+   "sha256": "a1c05547ebc3f2ffdd35876183b917f69d97b3b2e3c9fd6df072a44802e21975",
+   "bytes": 12923
+  }
+ ],
+ "outputs": [
+  {
+   "path": "score/turca.score.json",
+   "sha256": "b6eeb3115b68f707d0e5ec224a923ba0b875aa24820e0668e2a8988cc2ac62e7",
+   "bytes": 1465431
+  },
+  {
+   "path": "score/ode.score.json",
+   "sha256": "60427b279a467164debaa2a886c4fcd08e8f7b742df456dfdbd697228d39a73b",
+   "bytes": 695128
+  },
+  {
+   "path": "tracks/turca.tracks.json",
+   "sha256": "b34c86c5e8b873452de2d60d445f831d065470e51c0555639b6f147c6986b2be",
+   "bytes": 341606
+  },
+  {
+   "path": "tracks/ode.tracks.json",
+   "sha256": "be8bb52788b6a93730f32aaf09eb80f47334ed61598c2cb87e6a60f6238e208f",
+   "bytes": 331975
+  }
+ ],
+ "note": "Rewritten in P2: the builder now also adds the arrangement layers (score/arrange_*.py). The composer notes are unchanged; the Score witness proves it."
+}

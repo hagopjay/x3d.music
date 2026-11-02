@@ -102,15 +102,18 @@ try {
     check('C-' + f, f + ' decodes in decodeAudioData and keeps the burst times within 5 ms of the wav', d.ok ? { duration: d.duration, sampleRate: d.sampleRate, shift1_ms: d.onsetShift1_ms, shift2_ms: d.onsetShift2_ms, bytes: d.bytes } : d,
           d.ok && Math.abs(d.onsetShift1_ms) < 5 && Math.abs(d.onsetShift2_ms) < 5);
   }
-  const clk = await page.evaluate(() => window.probe.clock(2500));
+  // 8 s, not 2.5 s (2 Nov 2026): the context clock moves in audio-callback steps, and on a shared runner one stall of 3 ms at either end of a short window moves the fitted slope by 0.0013, which is more
+  // than the tolerance below (a CI run read 0.998667 over 2.5 s while the page-facing check, C6, read 1.000000 in the same run). The same stall over 8 s moves it by 0.0004. The tolerance did not change.
+  const clk = await page.evaluate(() => window.probe.clock(8000));
   const t = clk.rows.map(r => r[0] / 1000), cur = clk.rows.map(r => r[1]), ctxT = clk.rows.map(r => r[2]), perfT = clk.rows.map(r => r[3] / 1000);
   const moved = cur[cur.length - 1] - cur[0];
   const fitCur = fit(t, cur), fitTs = fit(perfT, ctxT);
   const offs = clk.rows.map(r => r[0] - r[3]);
   C.clock = { state: clk.state, sampleRate: clk.sampleRate, baseLatency_ms: clk.baseLatency * 1000, outputLatency_ms: clk.outputLatency * 1000, frames: clk.rows.length, contextAdvanced_s: moved,
               slope_vs_performance: fitCur.slope, maxResidual_ms: fitCur.maxResidual * 1000, timestampSlope: fitTs.slope, timestampMaxResidual_ms: fitTs.maxResidual * 1000,
-              performanceMinusTimestamp_ms: { min: Math.min(...offs), max: Math.max(...offs) } };
-  check('C5', 'the AudioContext runs and its clock advances at 1.000 +/- 0.001 of performance.now() over 2.5 s', { state: clk.state, advanced_s: +moved.toFixed(4), slope: +fitCur.slope.toFixed(6), outputLatency_ms: C.clock.outputLatency_ms },
+              performanceMinusTimestamp_ms: { min: Math.min(...offs), max: Math.max(...offs) },
+              rows: clk.rows.map(r => r.map(v => +v.toFixed(3))) };   // kept so that a red C5 can be read afterwards: [performance.now, currentTime, timestamp context time, timestamp performance time]
+  check('C5', 'the AudioContext runs and its clock advances at 1.000 +/- 0.001 of performance.now() over 8 s', { state: clk.state, advanced_s: +moved.toFixed(4), slope: +fitCur.slope.toFixed(6), outputLatency_ms: C.clock.outputLatency_ms },
         clk.state === 'running' && Math.abs(fitCur.slope - 1) < 0.001);
   check('C6', 'getOutputTimestamp() maps context time to performance time with slope 1 +/- 0.001', { slope: +fitTs.slope.toFixed(6), maxResidual_ms: +C.clock.timestampMaxResidual_ms.toFixed(3) }, Math.abs(fitTs.slope - 1) < 0.001);
   R.probes.C = C;
