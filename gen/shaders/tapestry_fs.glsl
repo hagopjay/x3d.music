@@ -1,8 +1,8 @@
 //@include common
 //@include ode_lib
 // The tapestry: 256 warp threads by 384 weft rows. u_cells holds the picture (three cell bytes per texel: code in bits 0 to 2, 0 = bare, 1..5 = the five threads, tone in bits 3 to 7).
-// u_weave holds, for every layer and row, the notes sounding at the moment that row is woven (EventTable rows layer * 384 + row). A cell is owned by one of them, picked by a hash of the
-// cell; it appears when its row is woven (u_sweepA and u_sweepB give each statement's start and end) and glows for as long as its owner sounds, then settles.
+// u_weave holds, for every layer and row, the notes sounding at the moment that row is woven (EventTable rows layer * 384 + row). A cell is owned by one of them, picked by an integer hash of the
+// cell (hash2u, the same arithmetic in witnesses and the page, so no GPU's float rounding can change the owner); it appears when its row is woven (u_sweepA and u_sweepB give each statement's start and end) and glows for as long as its owner sounds, then settles.
 uniform sampler2D u_cells;
 uniform sampler2D u_weave;
 uniform vec4 u_sweepA;
@@ -10,6 +10,11 @@ uniform vec4 u_sweepB;
 in vec2 v_uv;
 in vec3 v_obj;
 out vec4 x3d_FragColor;
+uint hash2u(ivec2 p) {
+  uint h = uint(p.x) * 374761393u + uint(p.y) * 668265263u;
+  h = (h ^ (h >> 13u)) * 1274126177u;
+  return h ^ (h >> 16u);
+}
 float cellByte(ivec2 cell) {
   vec4 t = texelFetch(u_cells, ivec2(cell.x / 3, cell.y), 0);
   int c = cell.x - 3 * (cell.x / 3);
@@ -33,7 +38,7 @@ void main() {
     float tw = t0 + (float(cell.y) + 0.5) / 384.0 * (t1 - t0);
     Row r = rowOf(u_weave, L * 384 + cell.y);
     if (r.n > 0 && u_time >= tw) {
-      int k = min(int(hash21(vec2(cell)) * float(r.n)), r.n - 1);
+      int k = int(hash2u(cell) % uint(r.n));
       Ev e = evAt(u_weave, r, k);
       woven = true;
       float a = clamp((u_time - e.on) / 0.10, 0.0, 1.0);

@@ -356,7 +356,8 @@ class World:
     def xml(self, title, description, background=(0.0, 0.0, 0.0)):
         head = [N("NavigationInfo", type='"NONE"', headlight=False), N("Background", skyColor=mf(background, 3))]
         bus = time_bus(self.D) + [N("TimeSensor", DEF="Clock", cycleInterval=num(self.D, 3), loop=True, enabled=False)]
-        kids = self.head + head + bus + self.nodes
+        free = N("Viewpoint", DEF="Free", position="0 3 20", orientation="0 1 0 0", fieldOfView="0.95", description="")      # the page's free camera: never bound by the world itself
+        kids = self.head + head + bus + self.nodes + [free]
         routes = [route("Clock", "fraction_changed", "FractionBus", "set_fraction")] + self.routes + self.sh.routes()
         return document(kids + routes, components=self.components, title=title, description=description, generator="loomsong gen/world_%s.py" % self.card.piece)
 

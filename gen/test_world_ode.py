@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tests for the Ode world: the weave is score-true (every cell's owner is a note that sounds at the moment its row is woven, a gap is a real gap), every note of the card is one hole of the
 card chain at the place and time it has in the score, the chain moves with the tempo map, the rose window is the circle of fifths, and the document is sane. Builds into a temp folder."""
-import math, os, sys, tempfile, unittest
+import json, math, os, sys, tempfile, unittest
 import xml.etree.ElementTree as ET
 from fractions import Fraction as Fr
 import numpy as np
@@ -15,6 +15,8 @@ import picture_ode as PIC       # noqa: E402
 TMP = tempfile.mkdtemp(prefix="loomsong-ode-")
 REPORT = O.build(out=TMP)
 ROOT = ET.parse(os.path.join(TMP, "ode.x3d")).getroot()
+with open(os.path.join(TMP, "ode.map.json"), encoding="utf-8") as _f:
+    MAP = json.load(_f)
 CARD = W.Card("ode")
 RES = 1.5 * CARD.D / W.T24
 
@@ -43,6 +45,18 @@ def read_row(name, row):
 
 
 class Weave(unittest.TestCase):
+    def test_the_owner_hash_spreads_cells_evenly_and_matches_its_published_vectors(self):
+        """hash2u is the same 32-bit arithmetic in the shader and the page; the vectors in the map are what the page's own copy is checked against."""
+        self.assertEqual(O.owner_hash(0, 0), 0)
+        for n in (2, 3, 6):
+            counts = [0] * n
+            for x in range(0, 256, 3):
+                for y in range(0, 384, 3):
+                    counts[O.owner_hash(x, y) % n] += 1
+            m = sum(counts) / n
+            self.assertLess(max(abs(c - m) for c in counts) / m, 0.06, (n, counts))
+        self.assertEqual({tuple(v) for v in MAP["hash"]}, {(x, y, O.owner_hash(x, y)) for x, y, _ in MAP["hash"]})
+
     def test_every_owner_sounds_at_the_moment_its_row_is_woven(self):
         n_events = 0
         for li, L in enumerate(O.LAYERS):

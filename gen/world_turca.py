@@ -194,7 +194,7 @@ def comb_mesh():
         zb = z_tip + tooth_len(p)
         m = blade(xc - 0.0058, xc + 0.0058, BARREL_Y - 0.0025, BARREL_Y + 0.0025, z_tip, zb)
         along = np.clip((zb - m.P[:, 2]) / (zb - z_tip), 0, 1)
-        parts.append(m.with_attr("tooth", float(p - PITCH0)).with_attr("along", along))
+        parts.append(m.with_attr("tooth", float(p - PITCH0)).with_attr("along", along.reshape(-1, 1)))
     return merge(parts)
 
 
@@ -387,17 +387,25 @@ def automata_nodes(w, card):
         name = "Band_" + kind
         children = [w.shape(automaton_static(kind), auto_shader(w), solid=False)]
         times = sorted(t for inst in insts for t in ev_by_inst.get(inst, []))
+        by_arm = arm_events(kind, times)
         for s_ in (-1, 1):
             hold = held if s_ == 1 else ("plate" if kind == "cymbal" else None)
             adef = "%s_arm%s" % (name, "R" if s_ == 1 else "L")
             children.append(N("Transform", w.shape(arm_mesh(hold), auto_shader(w), solid=False), DEF=adef, translation=vec(s_ * 0.36, 1.66, 0.0), rotation=vec(1, 0, 0, ARM_REST)))
-            if s_ == 1:
-                keys, vals = strike_keys(times, w.D)
+            if by_arm[s_]:                                     # an arm with no event of its own stays at rest and is driven by nothing
+                keys, vals = strike_keys(by_arm[s_], w.D)
                 w.drive("FractionBus", adef + "_rot", (adef, "rotation"), keys, [(1.0, 0.0, 0.0, v) for v in vals], "OrientationInterpolator")
-            else:
-                w.drive("FractionBus", adef + "_rot", (adef, "rotation"), [0.0, w.D], [(1.0, 0.0, 0.0, ARM_REST)] * 2, "OrientationInterpolator")
         nodes.append(N("Transform", *children, translation=vec(*pos), rotation=vec(0, 1, 0, face), DEF=name))
     return nodes
+
+
+def arm_events(kind, times):
+    """Which arm strikes which event: the drum and the toms alternate hands, the cymbals clash (both arms on every event), the triangle and the jingle staff are the right hand's. Every event moves an arm."""
+    if kind in ("davul", "tom"):
+        return {1: times[0::2], -1: times[1::2]}
+    if kind == "cymbal":
+        return {1: list(times), -1: list(times)}
+    return {1: list(times), -1: []}
 
 
 def strike_keys(times, D):

@@ -119,5 +119,27 @@ class Nodes(unittest.TestCase):
         self.assertEqual(M.geometry(M.box()).xml(), M.geometry(M.box()).xml())             # deterministic
 
 
+class Attributes(unittest.TestCase):
+    def test_a_number_or_short_vector_is_constant_and_a_column_is_per_vertex(self):
+        m = M.box(1, 1, 1)
+        n = len(m.P)
+        self.assertEqual(m.with_attr("a", 2.5).attrs["a"].shape, (n, 1))
+        self.assertEqual(m.with_attr("b", (1.0, 2.0, 3.0)).attrs["b"].shape, (n, 3))
+        per = np.arange(n, dtype=float).reshape(-1, 1)
+        got = m.with_attr("c", per).attrs["c"]
+        self.assertEqual(got.shape, (n, 1))
+        self.assertTrue(np.array_equal(got, per))
+
+    def test_a_long_flat_array_is_refused_instead_of_becoming_a_huge_constant(self):
+        """The bug this guards: a 1-D array of one number per vertex was tiled as a constant vector of n numbers, and the file declared numComponents of 84 (XSD maximum 4)."""
+        m = M.box(1, 1, 1)
+        with self.assertRaises(ValueError):
+            m.with_attr("along", np.zeros(len(m.P)))
+        with self.assertRaises(ValueError):
+            m.with_attr("wide", np.zeros((len(m.P), 5)))
+        with self.assertRaises(ValueError):
+            m.with_attr("short", np.zeros((len(m.P) - 1, 1)))
+
+
 if __name__ == "__main__":
     unittest.main()

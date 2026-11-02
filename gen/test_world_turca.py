@@ -193,5 +193,33 @@ class Document(unittest.TestCase):
         self.assertEqual(a, b)
 
 
+class Automata(unittest.TestCase):
+    def test_every_score_event_of_a_band_instrument_is_one_strike_and_every_arm_that_moves_has_a_reason(self):
+        """Each event of the instrument lands as a hit (the arm key at ARM_HIT) on the arm that plays it, at the event's own time; no arm is driven without an event."""
+        card = W.Card("turca")
+        by = {}
+        for n in card.notes:
+            by.setdefault(n["inst"], []).append(n["t"])
+        ints = {e.get("DEF"): e for e in ROOT.iter("OrientationInterpolator")}
+        for kind, insts, _ in T.AUTOMATA:
+            times = sorted(t for i in insts for t in by.get(i, []))
+            self.assertGreater(len(times), 20, kind)
+            want = T.arm_events(kind, times)
+            for side, arm in ((1, "R"), (-1, "L")):
+                node = ints.get("Band_%s_arm%s_rot" % (kind, arm))
+                if not want[side]:
+                    self.assertIsNone(node, "%s arm %s has no events and must not be driven" % (kind, arm))
+                    continue
+                self.assertIsNotNone(node, (kind, arm))
+                keys = [float(x) for x in node.get("key").split()]
+                vals = node.get("keyValue").split()
+                ang = [float(vals[i + 3]) for i in range(0, len(vals), 4)]
+                hits = [k * CARD.D for k, a in zip(keys, ang) if abs(a - T.ARM_HIT) < 1e-6]
+                self.assertEqual(len(hits), len(want[side]), (kind, arm))
+                for h, t in zip(hits, want[side]):
+                    self.assertAlmostEqual(h, t, delta=2e-3, msg=(kind, arm))
+            self.assertEqual(sorted(want[1] + want[-1]), times if kind != "cymbal" else sorted(times + times))
+
+
 if __name__ == "__main__":
     unittest.main()

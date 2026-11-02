@@ -103,9 +103,18 @@ class Mesh:
         return Mesh(self.P, self.N, self.F, np.tile(np.asarray(rgb, float), (len(self.P), 1)), self.attrs)
 
     def with_attr(self, name, value):
+        """A per-vertex attribute. A number or a short 1-D value (at most 4 numbers, X3D's FloatVertexAttribute limit) is one constant vector for every vertex; a per-vertex array must be
+        2-D, one row a vertex, so a scalar for each vertex is shaped (n, 1). A longer 1-D array is refused: it would silently become an n-by-m constant."""
         a = dict(self.attrs)
         v = np.asarray(value, float)
-        a[name] = np.tile(v.reshape(1, -1), (len(self.P), 1)) if v.size and v.ndim <= 1 else v.reshape(len(self.P), -1)
+        if v.ndim <= 1:
+            if v.size > 4:
+                raise ValueError("attribute %r: a 1-D value of %d numbers is not a constant vector (max 4); for one scalar per vertex pass shape (n, 1)" % (name, v.size))
+            a[name] = np.tile(v.reshape(1, -1), (len(self.P), 1))
+        else:
+            if v.shape[0] != len(self.P) or v.shape[1] > 4:
+                raise ValueError("attribute %r: shape %s does not fit %d vertices at 4 numbers or fewer" % (name, v.shape, len(self.P)))
+            a[name] = v
         return Mesh(self.P, self.N, self.F, self.C, a)
 
     @property

@@ -78,6 +78,19 @@ def weave_rows(card):
     return rows
 
 
+def owner_hash(x, y):
+    """The integer hash the tapestry shader (hash2u) uses to pick a cell's owner among the notes sounding at its row: 32-bit wrap-around arithmetic, identical in GLSL ES 3.00 and in the page."""
+    h = (x * 374761393 + y * 668265263) & 0xFFFFFFFF
+    h = ((h ^ (h >> 13)) * 1274126177) & 0xFFFFFFFF
+    return h ^ (h >> 16)
+
+
+def cell_owner(rows, layer, col, row):
+    """The note index that owns cell (col, row) of the layer: the shader's pick, from the stored (sorted) event row."""
+    ids = rows[layer * ROWS + row]
+    return ids[owner_hash(col, row) % len(ids)] if ids else None
+
+
 def weave_time(card, layer, row):
     t0, t1 = pass_times(card)[LAYERS[layer]["sec"]]
     return t0 + (row + 0.5) / ROWS * (t1 - t0)
@@ -480,7 +493,8 @@ def build(out=None):
 
     # what each row of each table means, for the page's hover and the Score witness
     drawn = dict(weave=[[e[5] for e in r] for r in t_weave.rows], chords=[[e[5] for e in r] for r in t_chords.rows], holes=list(range(len(card.notes))),
-                 layers=[dict(name=L["name"], section=L["sec"], insts=list(L["insts"])) for L in LAYERS])
+                 layers=[dict(name=L["name"], section=L["sec"], insts=list(L["insts"])) for L in LAYERS],
+                 hash=[[x, y, owner_hash(x, y)] for x, y in ((0, 0), (1, 0), (0, 1), (17, 5), (255, 383), (128, 192), (100, 300), (3, 77))])
     extra = dict(notes=len(card.notes), composer_notes=len(comp), cards=int(card.total_q), cells=ROWS * COLS, layers=[L["name"] for L in LAYERS], shots=len(shots))
     rep = W.write_world(w, "Ode to Joy: the Jacquard tapestry", "Every note is a hole in the card chain, and each statement of the theme weaves one colour of the picture.", extra, background=(0.0, 0.0, 0.01), out=out)
     import json
