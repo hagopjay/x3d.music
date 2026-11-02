@@ -1,0 +1,50 @@
+{
+ "schema": "loomsong.receipt/1",
+ "command": "python3 -I gen/probes/make_probes.py",
+ "SOURCE_DATE_EPOCH": "1793491200",
+ "python": "3.13",
+ "inputs": [
+  {
+   "path": "gen/probes/make_probes.py",
+   "sha256": "c0270209a3f98fe8e6da4a7b7cf17504368312c4c5692f7dc81e84a46f55e9ce",
+   "bytes": 10143
+  },
+  {
+   "path": "gen/x3dw.py",
+   "sha256": "0f3c98b7dd73d809c6af361e9cc440e20eb69e26c7e850e22291fca5b8b54f4d",
+   "bytes": 5101
+  },
+  {
+   "path": "tools/pins.json",
+   "sha256": "48a6acbc5002c4d08263d0e196a54e30bd03a2c7e4f7ecbd52ea273987499f4f",
+   "bytes": 997
+  }
+ ],
+ "outputs": [
+  {
+   "path": "build/probes/probe_a.x3d",
+   "sha256": "f52a6b6bf7a6a36d81aa89380309f6056eaeae8ef280cf448ba9303c3993eb21",
+   "bytes": 4221
+  },
+  {
+   "path": "build/probes/probe_splat41.x3d",
+   "sha256": "a274c6a9e93abeba361e9e9f7f51c659de58d4c744bd3e1f74d8317e34e7a318",
+   "bytes": 2268
+  },
+  {
+   "path": "build/probes/probe_splat40_bad.x3d",
+   "sha256": "bb9adef0009024a4e8b791d2e139455ab45205361e96a06b65fdb31e8d677e3c",
+   "bytes": 2268
+  },
+  {
+   "path": "build/probes/index.html",
+   "sha256": "3da4990d1e910ea90dbb8d4102dbd4c5f8659f59dacfcb7efd487f361eceee3b",
+   "bytes": 3121
+  },
+  {
+   "path": "build/probes/expect.json",
+   "sha256": "b24f0edd3a59469de12cd94a4af755583e57d62b9fef14a3ef2aba7c2d9e2110",
+   "bytes": 95
+  }
+ ]
+}

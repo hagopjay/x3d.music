@@ -1,0 +1,21 @@
+{
+  "_note": "Every tool a Loomsong receipt names is pinned here. Change a pin in its own commit, with the reason.",
+  "validator": {
+    "repo": "hagopjay/x3d_mcp",
+    "commit": "327c5c4ee21268fcb5c4526da7c2f39932019e72",
+    "tag_wanted": "loom-pin-2026-11-01",
+    "note": "main after pull request 16 (a test-only change); the same validator as ffbc20f. Switch to the tag when it exists."
+  },
+  "gate": {
+    "repo": "hagopjay/x3d.onto",
+    "commit": "21f5792bcf551137678ccbfaf2fde93ada432615",
+    "files": ["gobbler-demiurge/tools/loom_gate.py", "gobbler-demiurge/tools/loom_receipt.py", "gobbler-demiurge/tools/validate_fork.py"]
+  },
+  "x_ite": {
+    "version": "16.5.1",
+    "tarball": "https://registry.npmjs.org/x_ite/-/x_ite-16.5.1.tgz",
+    "integrity": "sha512-+j5dir4o8obQfKjiQdHIIQJ99gT2t5SSdSIi1SRtHFuPo4wXp9HIu5zjDE/7yxpmlv5W5oNgqJekXujHMJ012Q=="
+  },
+  "browser": {"name": "Chrome for Testing", "version": "153.0.8010.12", "driver": "Playwright 1.63.0"},
+  "python": "3.13"
+}

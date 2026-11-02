@@ -1,0 +1,9 @@
+# Python packages the witnesses and generators import (CI and local). The checkers themselves are pinned by commit in tools/pins.json.
+# The validator fork's own needs: lxml, jsonschema, xmlschema, rdflib, x3d. numpy writes the probe audio.
+pytest==9.2.0
+numpy==2.5.4
+lxml==6.1.3
+jsonschema==4.26.0
+xmlschema==4.3.2
+rdflib==7.6.0
+x3d==4.0.65.8

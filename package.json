@@ -1,0 +1,10 @@
+{
+  "name": "x3d-music-witnesses",
+  "private": true,
+  "description": "Browser-side witnesses (Behaviour, Host, Eyes, Sync, Fps) and the P0 probes. Nothing here is shipped.",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
