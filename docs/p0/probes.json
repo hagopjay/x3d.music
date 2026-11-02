@@ -1,0 +1,804 @@
+{
+ "schema": "loomsong.probes/1",
+ "browser": {
+  "chrome": "153.0.8010.12",
+  "playwright": "1.63.0",
+  "gl": "swiftshader"
+ },
+ "probes": {
+  "A": {
+   "shots": [
+    {
+     "t": 0,
+     "u_time": 0,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 69,
+     "u_time": 69,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 138,
+     "u_time": 138,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 230,
+     "u_time": 230,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      255,
+      255,
+      255
+     ]
+    },
+    {
+     "t": 28.749,
+     "u_time": 28.749,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 28.751,
+     "u_time": 28.751,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 28.7454,
+     "u_time": 28.74543869687953,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 28.7474,
+     "u_time": 28.74743869687953,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 57.499,
+     "u_time": 57.499,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 57.501,
+     "u_time": 57.501,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 57.4959,
+     "u_time": 57.495877393759066,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 57.4979,
+     "u_time": 57.49787739375906,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 86.249,
+     "u_time": 86.249,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 86.251,
+     "u_time": 86.251,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 86.2463,
+     "u_time": 86.24631609063859,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 86.2483,
+     "u_time": 86.2483160906386,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 114.999,
+     "u_time": 114.999,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 115.001,
+     "u_time": 115.00099999999999,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 114.9968,
+     "u_time": 114.99675478751811,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 114.9988,
+     "u_time": 114.99875478751812,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 143.749,
+     "u_time": 143.749,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 143.751,
+     "u_time": 143.751,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 143.7437,
+     "u_time": 143.7436839093614,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 143.7457,
+     "u_time": 143.74568390936142,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 172.499,
+     "u_time": 172.499,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 172.501,
+     "u_time": 172.501,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 172.4941,
+     "u_time": 172.49412260624095,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 172.4961,
+     "u_time": 172.49612260624096,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 201.249,
+     "u_time": 201.249,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      255,
+      255
+     ]
+    },
+    {
+     "t": 201.251,
+     "u_time": 201.251,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      255,
+      255,
+      255
+     ]
+    },
+    {
+     "t": 201.2446,
+     "u_time": 201.24456130312046,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      0,
+      255
+     ]
+    },
+    {
+     "t": 201.2466,
+     "u_time": 201.24656130312047,
+     "px0": [
+      255,
+      255,
+      0
+     ],
+     "pxLast": [
+      0,
+      255,
+      255
+     ]
+    }
+   ],
+   "tested": {
+    "fractions": 32,
+    "pixels": 768,
+    "maxTimeError_s": 1.4210854715202004e-14
+   }
+  },
+  "C": {
+   "canPlay": {
+    "mp4": "probably",
+    "ogg": "probably",
+    "mp3": "probably",
+    "wav": "maybe"
+   },
+   "decode": {
+    "wav": {
+     "ok": true,
+     "bytes": 480044,
+     "duration": 2.4999773242630385,
+     "sampleRate": 44100,
+     "channels": 2,
+     "onset1_s": 1.0008390022675737,
+     "onset2_s": 2.0008390022675737,
+     "ms": 55.3000000002794
+    },
+    "mp4": {
+     "ok": true,
+     "bytes": 3335,
+     "duration": 2.4999773242630385,
+     "sampleRate": 44100,
+     "channels": 2,
+     "onset1_s": 1.0008390022675737,
+     "onset2_s": 2.0008390022675737,
+     "ms": 34,
+     "onsetShift1_ms": 0,
+     "onsetShift2_ms": 0
+    },
+    "ogg": {
+     "ok": true,
+     "bytes": 2694,
+     "duration": 2.4999773242630385,
+     "sampleRate": 44100,
+     "channels": 2,
+     "onset1_s": 1.0008390022675737,
+     "onset2_s": 2.0008390022675737,
+     "ms": 58.1999999997206,
+     "onsetShift1_ms": 0,
+     "onsetShift2_ms": 0
+    },
+    "mp3": {
+     "ok": true,
+     "bytes": 82221,
+     "duration": 2.4999773242630385,
+     "sampleRate": 44100,
+     "channels": 2,
+     "onset1_s": 1.0008390022675737,
+     "onset2_s": 2.0008390022675737,
+     "ms": 32,
+     "onsetShift1_ms": 0,
+     "onsetShift2_ms": 0
+    }
+   },
+   "clock": {
+    "state": "running",
+    "sampleRate": 44100,
+    "baseLatency_ms": 10,
+    "outputLatency_ms": 32,
+    "frames": 148,
+    "contextAdvanced_s": 2.4903401360544217,
+    "slope_vs_performance": 1.0001044536870414,
+    "maxResidual_ms": 5.196425123847659,
+    "timestampSlope": 0.9999900356911401,
+    "timestampMaxResidual_ms": 2.7941100189394774,
+    "performanceMinusTimestamp_ms": {
+     "min": 0.2999999998137355,
+     "max": 9.600000000093132
+    }
+   }
+  },
+  "D": {
+   "strict41": {
+    "policy": "strict",
+    "file": "probe_splat41.x3d",
+    "load": "did not finish in 25 s",
+    "node": {
+     "error": "Error: Named node 'GS' not found."
+    },
+    "grid": {
+     "points": 576,
+     "nonBlack": 569,
+     "distinctColours": 8
+    },
+    "notices": [
+     "error: Sort worker error: CompileError: WebAssembly.instantiate(): Compiling or instantiating WebAssembly module violates the following Content Security policy directive because 'unsafe-eval' is not an allowed source of "
+    ],
+    "draws": false
+   },
+   "wasm41": {
+    "policy": "wasm",
+    "file": "probe_splat41.x3d",
+    "load": "loaded",
+    "node": {
+     "type": "GaussianSplats",
+     "version": "4.1",
+     "profile": "Immersive"
+    },
+    "grid": {
+     "points": 576,
+     "nonBlack": 96,
+     "distinctColours": 53
+    },
+    "notices": [],
+    "draws": true
+   },
+   "wasm40": {
+    "policy": "wasm",
+    "file": "probe_splat40_bad.x3d",
+    "load": "did not finish in 25 s",
+    "node": {
+     "error": "Error: Named node 'GS' not found."
+    },
+    "grid": {
+     "points": 576,
+     "nonBlack": 0,
+     "distinctColours": 0
+    },
+    "notices": [
+     "error: XML Parser: Unknown node type 'GaussianSplats'. You probably have insufficient component/profile statements and/or an inappropriate specification version."
+    ],
+    "draws": false
+   }
+  }
+ },
+ "checks": [
+  {
+   "id": "A0",
+   "claim": "the shader program links (ComposedShader.isValid) with data: ShaderParts, in/out GLSL ES 3.00, flat varying, texelFetch and per-vertex attributes",
+   "observed": {
+    "fraction": 0,
+    "seconds": 0,
+    "u_time": 0,
+    "valid": true
+   },
+   "ok": true
+  },
+  {
+   "id": "A1",
+   "claim": "u_time in the shader equals fraction x 230 s through FractionBus -> SecondsBus (max error over 32 settings)",
+   "observed": {
+    "maxTimeError_s": 1.4210854715202004e-14
+   },
+   "ok": true
+  },
+  {
+   "id": "A2",
+   "claim": "a strip lights from its per-vertex onset attribute within 1 ms of the exact time (768 pixel checks)",
+   "observed": {
+    "mismatches": 0,
+    "first": null
+   },
+   "ok": true
+  },
+  {
+   "id": "A3",
+   "claim": "a strip lights from the event texture (16-bit time in R and G) within the 4 ms slack, both sides of every threshold",
+   "observed": {
+    "mismatches": 0,
+    "first": null
+   },
+   "ok": true
+  },
+  {
+   "id": "A4",
+   "claim": "the data texture is read with NEAREST filtering and unchanged colour (B channel exactly 0 or 255, 0.45 texel off centre)",
+   "observed": {
+    "badPixels": 0
+   },
+   "ok": true
+  },
+  {
+   "id": "C1",
+   "claim": "wav decodes and the two bursts sit at 1.000 s and 2.000 s (reference for the others)",
+   "observed": {
+    "ok": true,
+    "bytes": 480044,
+    "duration": 2.4999773242630385,
+    "sampleRate": 44100,
+    "channels": 2,
+    "onset1_s": 1.0008390022675737,
+    "onset2_s": 2.0008390022675737,
+    "ms": 55.3000000002794
+   },
+   "ok": true
+  },
+  {
+   "id": "C-mp4",
+   "claim": "mp4 decodes in decodeAudioData and keeps the burst times within 5 ms of the wav",
+   "observed": {
+    "duration": 2.4999773242630385,
+    "sampleRate": 44100,
+    "shift1_ms": 0,
+    "shift2_ms": 0,
+    "bytes": 3335
+   },
+   "ok": true
+  },
+  {
+   "id": "C-ogg",
+   "claim": "ogg decodes in decodeAudioData and keeps the burst times within 5 ms of the wav",
+   "observed": {
+    "duration": 2.4999773242630385,
+    "sampleRate": 44100,
+    "shift1_ms": 0,
+    "shift2_ms": 0,
+    "bytes": 2694
+   },
+   "ok": true
+  },
+  {
+   "id": "C-mp3",
+   "claim": "mp3 decodes in decodeAudioData and keeps the burst times within 5 ms of the wav",
+   "observed": {
+    "duration": 2.4999773242630385,
+    "sampleRate": 44100,
+    "shift1_ms": 0,
+    "shift2_ms": 0,
+    "bytes": 82221
+   },
+   "ok": true
+  },
+  {
+   "id": "C5",
+   "claim": "the AudioContext runs and its clock advances at 1.000 +/- 0.001 of performance.now() over 2.5 s",
+   "observed": {
+    "state": "running",
+    "advanced_s": 2.4903,
+    "slope": 1.000104,
+    "outputLatency_ms": 32
+   },
+   "ok": true
+  },
+  {
+   "id": "C6",
+   "claim": "getOutputTimestamp() maps context time to performance time with slope 1 +/- 0.001",
+   "observed": {
+    "slope": 0.99999,
+    "maxResidual_ms": 2.794
+   },
+   "ok": true
+  },
+  {
+   "id": "D1",
+   "claim": "with 'wasm-unsafe-eval' allowed, the pinned X_ITE instantiates GaussianSplats from an X3D 4.1 file (bboxSize, bboxCenter set) and draws it (>12 of 576 grid points lit, >=3 colours)",
+   "observed": {
+    "node": {
+     "type": "GaussianSplats",
+     "version": "4.1",
+     "profile": "Immersive"
+    },
+    "grid": {
+     "points": 576,
+     "nonBlack": 96,
+     "distinctColours": 53
+    },
+    "load": "loaded"
+   },
+   "ok": true
+  },
+  {
+   "id": "D2",
+   "claim": "under the strict policy copy (no 'wasm-unsafe-eval') the splat sorter's WebAssembly is refused and the splats do not draw (recorded fact; flips if the policy or X_ITE changes)",
+   "observed": {
+    "load": "did not finish in 25 s",
+    "draws": false,
+    "notices": [
+     "error: Sort worker error: CompileError: WebAssembly.instantiate(): Compiling or instantiating WebAssembly module violates the following Content Security policy directive because 'unsafe-eval' is not an allowed source of "
+    ]
+   },
+   "ok": true
+  },
+  {
+   "id": "D3",
+   "claim": "the same node in a file declared X3D 4.0, policy with wasm allowed: what the browser does (recorded, not graded)",
+   "observed": {
+    "node": {
+     "error": "Error: Named node 'GS' not found."
+    },
+    "load": "did not finish in 25 s",
+    "draws": false,
+    "grid": {
+     "points": 576,
+     "nonBlack": 0,
+     "distinctColours": 0
+    },
+    "notices": [
+     "error: XML Parser: Unknown node type 'GaussianSplats'. You probably have insufficient component/profile statements and/or an inappropriate specification version."
+    ]
+   },
+   "ok": true
+  },
+  {
+   "id": "H1",
+   "claim": "no CSP violation, page error or failed request under the policy copy during the whole run (known-harmless font and wasm notices excluded)",
+   "observed": {
+    "csp": 0,
+    "harmlessCsp": [
+     "font-src http://127.0.0.1:PORT/xite/assets/fonts/PT_Sans/PTSans-Regular.woff2",
+     "font-src http://127.0.0.1:PORT/xite/assets/fonts/PT_Sans/PTSans-Bold.woff2",
+     "font-src http://127.0.0.1:PORT/xite/assets/fonts/PT_Sans/PTSans-Italic.woff2",
+     "script-src wasm-eval"
+    ],
+    "errors": 0,
+    "failed": 0,
+    "http": 0
+   },
+   "ok": true
+  }
+ ],
+ "environment": {
+  "xite": "16.5.1",
+  "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+  "glsl": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+  "renderer": "ANGLE (Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "maxTexture": 8192,
+  "maxVertexAttribs": 16,
+  "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+ },
+ "page": {
+  "csp": [],
+  "cspHarmless": [
+   "font-src http://127.0.0.1:PORT/xite/assets/fonts/PT_Sans/PTSans-Regular.woff2",
+   "font-src http://127.0.0.1:PORT/xite/assets/fonts/PT_Sans/PTSans-Bold.woff2",
+   "font-src http://127.0.0.1:PORT/xite/assets/fonts/PT_Sans/PTSans-Italic.woff2",
+   "script-src wasm-eval"
+  ],
+  "errors": [],
+  "failed": [],
+  "http": [],
+  "console": [],
+  "served": 11
+ },
+ "summary": {
+  "passed": 15,
+  "failed": 0
+ }
+}

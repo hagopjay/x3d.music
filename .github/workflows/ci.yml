@@ -1,0 +1,88 @@
+name: ci
+
+# Witnesses that run on every commit: the leak sweep and unit tests (sweep job); then Grammar, Meaning, Traps, Receipts and the browser probes (worlds job).
+# Score, Ear and the rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SOURCE_DATE_EPOCH: '1793491200'
+
+jobs:
+  sweep:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -r requirements.txt
+      - name: Leak sweep (keys, cloud paths, private links, vendor names, costs)
+        run: python3 -I witnesses/leak_sweep.py --root .
+      - name: Unit tests for the sweep and the trap rules
+        run: python3 -I -m pytest -q witnesses
+
+  worlds:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - id: pins
+        name: Read the pins
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json
+          p = json.load(open('tools/pins.json'))
+          print('validator=' + p['validator']['commit'])
+          print('gate=' + p['gate']['commit'])
+          EOF
+      - uses: actions/checkout@v4
+        with:
+          repository: hagopjay/x3d_mcp
+          ref: ${{ steps.pins.outputs.validator }}
+          path: .pins/x3d_mcp
+      - uses: actions/checkout@v4
+        with:
+          repository: hagopjay/x3d.onto
+          ref: ${{ steps.pins.outputs.gate }}
+          path: .pins/x3d.onto
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -r requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Fetch the pinned X_ITE (sha512 checked)
+        run: python3 -I tools/fetch_xite.py
+      - name: Build the probe worlds
+        run: python3 -I gen/probes/make_probes.py
+      - name: Receipts (a rebuild gives the same sha256)
+        run: python3 -I witnesses/receipts.py check receipts/p0-probes.json
+      - name: Grammar, Meaning, Traps (pinned validator and gate, plus the five Loomsong rules)
+        env:
+          X3D_MCP: ${{ github.workspace }}/.pins/x3d_mcp
+          LOOM_GATE: ${{ github.workspace }}/.pins/x3d.onto/gobbler-demiurge/tools
+        run: python3 -I witnesses/gate_all.py build/probes --out build/runs/gate.json
+      - name: Behaviour and Host probes (headless Chrome, software GL, strict policy copy)
+        run: node witnesses/probes.mjs --strict --out build/runs/probes.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p0-run
+          path: build/runs
+          retention-days: 14
