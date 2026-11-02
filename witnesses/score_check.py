@@ -248,10 +248,73 @@ def common_checks(card, piece, R):
     return notes, tempo, beats, pickup
 
 
+def arrangement_checks(card, tempo, beats, pickup, R):
+    """The arrangement layer: notes of our own around the composer's. Each names its rule, stays off the composer's instruments, is declared, follows the tempo map, and keeps its place in the form."""
+    arr = [n for n in card["notes"] if n["layer"] == "arrangement"]
+    comp = [n for n in card["notes"] if n["layer"] == "composer"]
+    comp_insts = {n["inst"] for n in comp}
+    declared = {i["id"]: i for i in card["instruments"]}
+    form = [(Fr(f["q0"]), Fr(f["q1"]), f["id"], f["rep"]) for f in card["form"]]
+    end = form[-1][1]
+    bad = [n["id"] for n in arr if not str(n.get("src", "")).startswith("arr:") or len(n["src"]) <= 4 or "kbar" in n or n["src"] != n["src"].strip()]
+    R.add("S11", "every arrangement note names the rule that made it (src 'arr:<rule>') and carries no kern measure number, and the card counts them", not bad and len(arr) == card["checks"].get("arrangement_notes"),
+          "%d arrangement notes, %d without a rule or with a kern bar, card says %s" % (len(arr), len(bad), card["checks"].get("arrangement_notes")))
+    clash = sorted({n["inst"] for n in arr} & comp_insts)
+    R.add("S12", "the arrangement plays none of the composer layer's instruments, so no arrangement note can double or replace a composer note", not clash, "arrangement instruments: %s" % ", ".join(sorted({n["inst"] for n in arr})))
+    routed = {r["inst"] for per in (card.get("routing") or {}).values() for rs in per.values() for r in rs}
+    missing = sorted(({n["inst"] for n in arr} | routed) - set(declared))
+    wrong_layer = sorted(i for i in ({n["inst"] for n in arr} | routed) if i in declared and declared[i]["layer"] != "arrangement")
+    stems = sorted(i for i, d in declared.items() if d.get("stem") != "stems/%s.wav" % i)
+    R.add("S13", "every instrument the arrangement plays or the routing sounds is declared on the arrangement layer with a stem named stems/<instrument>.wav", not missing and not wrong_layer and not stems,
+          "%d declared; undeclared %s, wrong layer %s, odd stem %s" % (len(declared), missing, wrong_layer, stems))
+    worst, bad_pos = 0.0, []
+    for n in arr:
+        q, ql = Fr(n["q"]), Fr(n["ql"])
+        t0 = seconds(tempo, q)
+        worst = max(worst, abs(float(t0) - n["t"]), abs(float(seconds(tempo, q + ql) - t0) - n["dur"]))
+        bar, beat = bar_beat(q, beats, pickup)
+        pas = [(i, r) for a, b, i, r in form if a <= q < b]
+        if (bar, float(beat)) != (n["bar"], n["beat"]) and not (bar == n["bar"] and abs(float(beat) - n["beat"]) < 1e-5) or pas != [(n["section"], n["rep"])] or not (0 <= q and q + ql <= end and ql > 0):
+            bad_pos.append(n["id"])
+    R.add("S14", "t and dur of every arrangement note equal the tempo map within 0.6 microseconds; bar, beat, section and pass agree with its exact quarter position; nothing starts before the piece or rings past its end",
+          worst <= 6e-7 and not bad_pos, "worst error %.2e s; %d notes out of place%s" % (worst, len(bad_pos), (" (first: %s)" % bad_pos[0]) if bad_pos else ""))
+    odd = [n["id"] for n in arr if not (isinstance(n["pitch"], int) and 12 <= n["pitch"] <= 108 and isinstance(n["vel"], int) and 1 <= n["vel"] <= 127)]
+    R.add("S15", "arrangement pitches are integer MIDI notes from 12 to 108 and velocities integers from 1 to 127", not odd, "%d odd%s" % (len(odd), (": " + ", ".join(odd[:3])) if odd else ""))
+    routing = card.get("routing")
+    if routing is None:
+        R.add("S16", "a card with no routing sounds every composer note on its own instrument (no composer instrument is silent or left without a stem)", all(i in declared for i in comp_insts), "no routing")
+        return
+    ok, why = isinstance(routing, dict) and set(routing) <= comp_insts, []
+    for ci, per in (routing.items() if isinstance(routing, dict) else []):
+        secs = {n["section"] for n in comp if n["inst"] == ci}
+        if secs - set(per):
+            why.append("%s: no route for %s" % (ci, sorted(secs - set(per))))
+        for sec, rs in per.items():
+            if sec not in {f[2] for f in form} or not rs:
+                why.append("%s/%s: unknown section or empty route" % (ci, sec))
+            for r in rs:
+                if set(r) - {"inst", "rel", "vel", "dur"} or not isinstance(r.get("rel"), int) or abs(r["rel"]) > 3 or not isinstance(r.get("vel"), int) or abs(r["vel"]) > 30 or r["inst"] not in declared:
+                    why.append("%s/%s: bad route %s" % (ci, sec, r))
+    R.add("S16", "the routing gives every section that has composer notes a non-empty route to declared instruments, with whole-octave shifts of at most 3 and velocity offsets of at most 30", ok and not why, "; ".join(why[:3]) or "%d composer instrument(s) routed" % len(routing))
+    # the counter-line: it stands a third, the fifth or a sixth above every melody note it sounds with, so it can never be against the melody
+    cl = [n for n in arr if n["src"] == "arr:counter.line"]
+    if cl:
+        mel = [(Fr(n["q"]), Fr(n["q"]) + Fr(n["ql"]), n["pitch"] + 12 * n.get("oct", 0)) for n in comp]
+        offenders = []
+        for n in cl:
+            s0, e0 = Fr(n["q"]), Fr(n["q"]) + Fr(n["ql"])
+            for ms, me, mp in mel:
+                if ms < e0 and me > s0 and not (n["pitch"] > mp and (n["pitch"] - mp) % 12 in (3, 4, 7, 8, 9)):
+                    offenders.append((n["id"], mp))
+        R.add("S17", "the counter-line stands above every melody note it sounds with, at a minor or major third, the fifth, or a minor or major sixth (mod an octave)", not offenders,
+              "%d counter-line notes, %d against the melody%s" % (len(cl), len(offenders), (" (first: %s)" % (offenders[0],)) if offenders else ""))
+
+
 def check_turca(card, root, R):
     krn_path = os.path.join(root, card["source"]["path"])
     R.add("S0", "the card names the source file by its sha256", hashlib.sha256(open(krn_path, "rb").read()).hexdigest() == card["source"]["sha256"], card["source"]["path"])
     notes, tempo, beats, pickup = common_checks(card, "turca", R)
+    arrangement_checks(card, tempo, beats, pickup, R)
     ind = kern_independent(krn_path)
     heads, total = m21_turca(krn_path)
     # the plan and the section extents come from the file's own labels, read by the independent reader
@@ -321,6 +384,7 @@ def check_ode(card, root, R):
     xml_path = os.path.join(root, card["source"]["path"])
     R.add("S0", "the card names the source file by its sha256", hashlib.sha256(open(xml_path, "rb").read()).hexdigest() == card["source"]["sha256"], card["source"]["path"])
     notes, tempo, beats, pickup = common_checks(card, "ode", R)
+    arrangement_checks(card, tempo, beats, pickup, R)
     raw, reps, total = m21_ode(xml_path)
     R.add("S2a", "the theme is 16 written bars (64 quarters) with a repeat over bars 9 to 16", total == 64 and reps == [(9, "start"), (16, "end")], "%s quarters, repeats %s (music21 calls them start and end)" % (total, reps))
     # the spec's arrangement table, restated: section -> (bars, written ranges in quarters of the theme)

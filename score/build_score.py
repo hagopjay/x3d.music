@@ -10,11 +10,24 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
-import ode, tracks, turca                      # noqa: E402
+import arrange_ode, arrange_turca, ode, tracks, turca   # noqa: E402
 from cardlib import dump_card                  # noqa: E402
 
-JOBS = (("turca", lambda: turca.build(os.path.join(ROOT, "sources", "sonata11-3.krn"))),
-        ("ode", lambda: ode.build(os.path.join(ROOT, "sources", "ode-theme.musicxml"))))
+
+def with_band(card, arranger):
+    """Add the arrangement layer: notes of our own with their own ids, around the composer's. The composer notes are not touched."""
+    a = arranger.build(card)
+    notes = a.finish(card["piece"])
+    card["notes"] = card["notes"] + notes
+    card["instruments"] = card["instruments"] + a.instruments()
+    card["checks"]["arrangement_notes"] = len(notes)
+    if hasattr(arranger, "routing"):
+        card["routing"] = arranger.routing(card)
+    return card
+
+
+JOBS = (("turca", lambda: with_band(turca.build(os.path.join(ROOT, "sources", "sonata11-3.krn")), arrange_turca)),
+        ("ode", lambda: with_band(ode.build(os.path.join(ROOT, "sources", "ode-theme.musicxml")), arrange_ode)))
 
 
 def main():
