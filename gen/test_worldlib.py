@@ -134,5 +134,35 @@ class Shots(unittest.TestCase):
         self.assertTrue(all(b > a for a, b in zip(keys, keys[1:])))
 
 
+class Effects(unittest.TestCase):
+    """X_ITE picks on the GPU: a faint light shaft in front of a TouchSensor's shape hides it from the pointer. The worlds name their effect shapes so the page can let the pointer through."""
+
+    def test_an_effect_shape_is_named_and_listed_and_other_shapes_are_not(self):
+        import meshlib as M
+        w = W.World(CARDS["ode"])
+        mesh = M.box(1.0, 1.0, 1.0)
+        sh = w.sh.make("ShProbe", "shaft_vs", "shaft_fs", [])
+        fx = w.shape(mesh, sh, blend=True, solid=False, normals=False, color=False, fx="Fx_Probe")
+        plain = w.shape(mesh, sh, solid=False, normals=False, color=False)
+        self.assertEqual(fx.attrs.get("DEF"), "Fx_Probe")
+        self.assertIsNone(plain.attrs.get("DEF"))
+        self.assertEqual(w.intangible, ["Fx_Probe"])
+
+    def test_both_worlds_list_exactly_the_effect_shapes_they_draw_and_each_is_in_the_file(self):
+        import json
+        want = {"ode": ["Fx_Shafts"], "turca": ["Fx_Halo", "Fx_Flares"]}
+        for piece, names in want.items():
+            path = os.path.join(ROOT, "build", "worlds")
+            if not os.path.exists(os.path.join(path, piece + ".map.json")):
+                self.skipTest("worlds not generated yet (python3 -I gen/world_%s.py)" % piece)
+            with open(os.path.join(path, piece + ".map.json"), encoding="utf-8") as f:
+                listed = json.load(f)["intangible"]
+            with open(os.path.join(path, piece + ".x3d"), encoding="utf-8") as f:
+                text = f.read()
+            self.assertEqual(listed, names, piece)
+            for n in names:
+                self.assertEqual(len(re.findall(r"<Shape[^>]*DEF='%s'" % n, text)), 1, "%s: %s is a named Shape in the file" % (piece, n))
+
+
 if __name__ == "__main__":
     unittest.main()

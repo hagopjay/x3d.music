@@ -320,8 +320,9 @@ class World:
         self.head, self.nodes, self.routes = [], [], []
         self.sh = Shaders(self.D)
         self._shared = set()
+        self.intangible = []        # DEF names of the effect shapes (light, glow, dust): the pointer passes through them (see shape(fx=...))
         self.stats = dict(shapes=0, triangles=0, texture_bytes=0, interpolator_keys=0, transforms=0, tables={})
-        self.components = [("Interpolation", 2), ("Navigation", 3), ("Shaders", 1), ("Shape", 1), ("Texturing", 2), ("Time", 1)]
+        self.components = [("Interpolation", 2), ("Navigation", 3), ("PointingDeviceSensor", 1), ("Shaders", 1), ("Shape", 1), ("Texturing", 2), ("Time", 1)]
 
     def add(self, *nodes):
         self.nodes += [n for n in nodes if n is not None]
@@ -338,8 +339,14 @@ class World:
         self.stats["tables"][t.name] = dict(rows=len(t.rows), width=t.width, max_events=t.max_events)
         return t
 
-    def shape(self, mesh, sh, blend=False, solid=True, normals=True, color=True, attrs=True, name=None):
-        """A Shape for a mesh and a ComposedShader. blend=True adds Material transparency (X_ITE blends a shape's alpha only when its appearance says it is transparent; probe B)."""
+    def shape(self, mesh, sh, blend=False, solid=True, normals=True, color=True, attrs=True, name=None, fx=None):
+        """A Shape for a mesh and a ComposedShader. blend=True adds Material transparency (X_ITE blends a shape's alpha only when its appearance says it is transparent; probe B).
+
+        fx="Name" marks an effect (a light shaft, a halo, a flare): the Shape is named, and its name goes in self.intangible. X_ITE picks on the GPU, and a shape in the way blocks a
+        TouchSensor behind it however faint it looks; Shape.pointerEvents=false lets the pointer through, but that field is X3D 4.1 and the worlds are 4.0, so the page sets it by SAI."""
+        if fx:
+            name = name or fx
+            self.intangible.append(name)
         app = N("Appearance", *([N("Material", transparency="0.001")] if blend else []), sh)
         self.stats["shapes"] += 1
         self.stats["triangles"] += int(mesh.triangles)

@@ -341,6 +341,28 @@ def shafts_mesh():
     return merge(parts)
 
 
+HOLE_HH = 0.0165                                # half the height of a hole, metres
+
+
+def hole_layout(card):
+    """Where each note's hole sits on the card chain, in ribbon metres: [(x0, x1, yc, lane)] in card order. The mesh is built from this, and so is the page's hover."""
+    pr = {}
+    for n in card.notes:
+        lo, hi = pr.get(n["inst"], (999, -1))
+        pr[n["inst"]] = (min(lo, n["pitch"]), max(hi, n["pitch"]))
+    lane_h = 2.0 / len(LANES)
+    out = []
+    for n in card.notes:
+        li = LANES.index(n["inst"]) if n["inst"] in LANES else LANES.index("pad")
+        lo, hi = pr[n["inst"]]
+        fr = (n["pitch"] - lo) / max(hi - lo, 1)
+        yc = 1.0 - (li + 0.5) * lane_h + (fr - 0.5) * lane_h * 0.62
+        x0 = CARD_P * float(Fr(n["q"]))
+        x1 = x0 + max(CARD_P * float(Fr(n["ql"])) * 0.94, 0.02)
+        out.append((x0, x1, yc, li))
+    return out
+
+
 def belt_mesh(card):
     """The card chain as one mesh: a long plate (kind 0) and one hole (kind 1) for every note, where it starts in its beat and as long as it lasts, in the lane of its instrument."""
     n_beats = int(card.total_q)
@@ -348,20 +370,9 @@ def belt_mesh(card):
     plate = Mesh([(-0.6, -1.0, 0), (L + 0.6, -1.0, 0), (L + 0.6, 1.0, 0), (-0.6, 1.0, 0)], [(0, 0, 1)] * 4, [[0, 1, 2], [0, 2, 3]])
     plate = plate.with_attr("kind", 0.0).with_attr("loc", np.array([[-0.6, -1.0], [L + 0.6, -1.0], [L + 0.6, 1.0], [-0.6, 1.0]])).with_attr("id", 0.0)
     plate = plate.with_attr("t0", 0.0).with_attr("t1", 0.0).with_attr("fam", 0.0)
-    pr = {}
-    for n in card.notes:
-        lo, hi = pr.get(n["inst"], (999, -1))
-        pr[n["inst"]] = (min(lo, n["pitch"]), max(hi, n["pitch"]))
-    lane_h = 2.0 / len(LANES)
     P, F, loc, ids, t0, t1, fam = [], [], [], [], [], [], []
-    for i, n in enumerate(card.notes):
-        li = LANES.index(n["inst"]) if n["inst"] in LANES else LANES.index("pad")
-        lo, hi = pr[n["inst"]]
-        fr = (n["pitch"] - lo) / max(hi - lo, 1)
-        yc = 1.0 - (li + 0.5) * lane_h + (fr - 0.5) * lane_h * 0.62
-        x0 = CARD_P * float(Fr(n["q"]))
-        x1 = x0 + max(CARD_P * float(Fr(n["ql"])) * 0.94, 0.02)
-        hh = 0.0165
+    for i, (n, (x0, x1, yc, li)) in enumerate(zip(card.notes, hole_layout(card))):
+        hh = HOLE_HH
         base = len(P)
         for x, y in ((x0, yc - hh), (x1, yc - hh), (x1, yc + hh), (x0, yc + hh)):
             P.append((x, y, 0.02)); loc.append((x, y)); ids.append(i); t0.append(n["t"]); t1.append(n["t"] + n["dur"]); fam.append(FAMILY.get(n["inst"], 1))
@@ -390,7 +401,7 @@ def shot_for(kind, t0, t1, i, cy):
     if kind == "track":
         return Shot(kind, t0, t1, lambda s: (2.6 * sgn, cy(tm(s)) + 1.0, -15.0), lambda s: (0.4 * sgn, cy(tm(s)) - 0.6, -23.6), fov=0.9, ease=False)
     if kind == "shuttle":
-        return Shot(kind, t0, t1, lambda s: (-2.4, cy(tm(s)) + 1.0, -20.0), lambda s: (-1.4, cy(tm(s)) + 0.3, -22.7), fov=0.75, ease=False)
+        return Shot(kind, t0, t1, lambda s: (2.5, cy(tm(s)) + 1.9, -17.5), lambda s: (0.0, cy(tm(s)) + 0.8, -22.8), fov=0.8, ease=False)
     if kind == "cards":
         return Shot(kind, t0, t1, lambda s: lerp3((-4.6, 12.0, -13.0), (-2.2, 13.2, -14.5), s), (0.4, HEAD_Y - 0.2, -22.0), fov=0.8)
     if kind == "rose":
@@ -457,13 +468,13 @@ def build(out=None):
 
     # the static set, the tapestry, the rose window, the light
     w.add(w.shape(nave_meshes(), sh_nave, solid=False, normals=True, color=True))
-    w.add(w.shape(tapestry_mesh(), sh_tap, solid=False, normals=False, color=False))
+    w.add(N("Group", N("TouchSensor", DEF="HoverTap", description=""), w.shape(tapestry_mesh(), sh_tap, solid=False, normals=False, color=False)))
     w.add(w.shape(rose_mesh(), sh_rose, solid=False, normals=False, color=False))
-    w.add(w.shape(shafts_mesh(), sh_shaft, blend=True, solid=False, normals=False, color=False))
+    w.add(w.shape(shafts_mesh(), sh_shaft, blend=True, solid=False, normals=False, color=False, fx="Fx_Shafts"))
 
     # the card chain
     bt, bp = belt_keys(card)
-    w.add(N("Transform", w.shape(belt_mesh(card), sh_cards, solid=False, normals=False, color=False), DEF="Belt", translation=vec(0, HEAD_Y, BELT_Z)))
+    w.add(N("Transform", N("TouchSensor", DEF="HoverBelt", description=""), w.shape(belt_mesh(card), sh_cards, solid=False, normals=False, color=False), DEF="Belt", translation=vec(0, HEAD_Y, BELT_Z)))
     w.drive("FractionBus", "BeltPos", ("Belt", "translation"), bt, bp, "PositionInterpolator", places=4)
 
     # the carriage: beam, batten, harness, shuttle; and the cords that tie it to the head
@@ -494,7 +505,9 @@ def build(out=None):
     # what each row of each table means, for the page's hover and the Score witness
     drawn = dict(weave=[[e[5] for e in r] for r in t_weave.rows], chords=[[e[5] for e in r] for r in t_chords.rows], holes=list(range(len(card.notes))),
                  layers=[dict(name=L["name"], section=L["sec"], insts=list(L["insts"])) for L in LAYERS],
-                 hash=[[x, y, owner_hash(x, y)] for x, y in ((0, 0), (1, 0), (0, 1), (17, 5), (255, 383), (128, 192), (100, 300), (3, 77))])
+                 hash=[[x, y, owner_hash(x, y)] for x, y in ((0, 0), (1, 0), (0, 1), (17, 5), (255, 383), (128, 192), (100, 300), (3, 77))],
+                 tap=dict(x0=-TAP_W / 2, w=TAP_W, top=TAP_TOP, h=TAP_H, cols=COLS, rows=ROWS), sweep=[[round(x, 4) for x in a_], [round(x, 4) for x in b_]], card_p=CARD_P,
+                 hole_rects=[[round(x0, 4), round(x1, 4), round(yc, 4), li] for x0, x1, yc, li in hole_layout(card)], lanes=LANES, intangible=list(w.intangible))
     extra = dict(notes=len(card.notes), composer_notes=len(comp), cards=int(card.total_q), cells=ROWS * COLS, layers=[L["name"] for L in LAYERS], shots=len(shots))
     rep = W.write_world(w, "Ode to Joy: the Jacquard tapestry", "Every note is a hole in the card chain, and each statement of the theme weaves one colour of the picture.", extra, background=(0.0, 0.0, 0.01), out=out)
     import json

@@ -608,7 +608,7 @@ def build(out=None):
 
     # the hall
     w.add(N("Transform", w.shape(dome_mesh(), sh_dome, solid=False, normals=False, color=False, attrs=False), translation=vec(0, DOME_Y, 0)))
-    w.add(w.shape(tiles_mesh(), sh_floor, solid=False, normals=False, color=False))
+    w.add(N("Group", N("TouchSensor", DEF="HoverTiles", description=""), w.shape(tiles_mesh(), sh_floor, solid=False, normals=False, color=False)))
     slab, wall = arcade_mesh()
     stone, brass = plinth_mesh()
     for mesh in (outer_floor(), hub_mesh(), slab, wall, stone, brass):
@@ -616,19 +616,21 @@ def build(out=None):
     # the machine
     pm, hm = pins_mesh(pins, len(names))
     w.add(w.shape(comb_mesh(), sh_comb, solid=False, normals=False, color=False), w.shape(comb_mount(), sh_mount, solid=False, color=False))
-    w.add(N("Transform", w.shape(barrel_mesh(len(names)), sh_barrel, solid=False, color=False), w.shape(pm, sh_pins, solid=False, normals=False, color=False),
-            w.shape(hm, sh_halo, blend=True, solid=False, normals=False, color=False),
+    w.add(N("Transform", N("TouchSensor", DEF="HoverPins", description=""), w.shape(barrel_mesh(len(names)), sh_barrel, solid=False, color=False), w.shape(pm, sh_pins, solid=False, normals=False, color=False),
+            w.shape(hm, sh_halo, blend=True, solid=False, normals=False, color=False, fx="Fx_Halo"),
             DEF="Barrel", translation=vec(-band_x(names.index(card.passes[0]["id"]), len(names)), BARREL_Y, BARREL_Z), rotation=vec(1, 0, 0, 0)))
     barrel_motion(w, card, names)
     # lanterns and the band
     lf, ls = lantern_meshes()
-    w.add(w.shape(lf, sh_lamp, solid=False), w.shape(ls, sh_spr, blend=True, solid=False, normals=False))
+    w.add(w.shape(lf, sh_lamp, solid=False), w.shape(ls, sh_spr, blend=True, solid=False, normals=False, fx="Fx_Flares"))
     w.add(*automata_nodes(w, card))
 
     # what each row of each table means, for the page's hover and the Score witness (every drawn id is a card note; every composer note is drawn)
     drawn = dict(
         tiles=[[e[5] for e in r] for r in t_tiles.rows], teeth=[[e[5] for e in r] for r in t_teeth.rows],
-        pins=[dict(src=d["src"], band=names[d["band"]], notes=d["notes"]) for d in pins])
+        pins=[dict(src=d["src"], band=names[d["band"]], notes=d["notes"], x=round(band_x(d["band"], len(names)) + (d["pitch"] - (PITCH0 + PITCH1) // 2) * LANE, 5),
+                   th=round(d["theta"], 5), dp=round(max(d["dpsi"], 0.014 / BARREL_R), 5)) for d in pins],
+        floor=dict(r0=FLOOR_R0, r1=FLOOR_R1, rings=5, sectors=12, pitch0=36), pin_w=PIN_W, barrel_r=BARREL_R, intangible=list(w.intangible))
     extra = dict(pins=len(pins), bands=names, tiles=60, teeth=NT, composer_notes=len(comp), automata=[a[0] for a in AUTOMATA], shots=len(shots))
     rep = W.write_world(w, "Rondo alla Turca: the pinned barrel", "Every composer note is a pin, a comb tooth and a floor tile; the arrangement drives the clockwork band.", extra, background=(0.01, 0.015, 0.03), out=out)
     import json

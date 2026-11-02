@@ -4,7 +4,7 @@
     python3 -I page/build_page.py [--no-audio]
 
   index.html            the template with the config filled in (the host wraps it in its own skeleton)
-  clock.js driver.js ui.js boot.js      the page's own scripts (no modules, no eval)
+  clock.js driver.js ui.js hover.js boot.js      the page's own scripts (no modules, no eval)
   xite/                 X_ITE 16.5.1 as the page's own files (never a CDN at run time)
   worlds/<piece>.x3d    the generated worlds, DOCTYPE line removed (they publish as application/xml)
   data/<piece>.json     what the page needs from the score card: bars, tempo, sections, chords, a slim table of notes by card index, hover tables, the Ode's lines
@@ -83,7 +83,7 @@ def meta(piece):
         m["lyrics"] = lyrics(card)
     with open(os.path.join(WORLDS, piece + ".map.json"), encoding="utf-8") as f:
         mp = json.load(f)
-    m["map"] = {k: v for k, v in mp.items() if k in ("pins", "tiles", "teeth", "layers", "hash")}
+    m["map"] = {k: v for k, v in mp.items() if k not in ("holes",)}                # holes is the identity (hole i is note i); the rest is what hover reads
     return m
 
 
@@ -127,7 +127,7 @@ def main(argv):
         have_audio[pid] = encode_audio(pid, audio)
         cfg["pieces"].append(dict(id=pid, n=p["n"], title=p["title"], by=p["by"], world="worlds/%s.x3d" % pid, audio="audio/%s.mp4" % pid, meta="data/%s.json" % pid,
                                   D=rep["D"], shaders=shaders, camScale=p["camScale"], credits=p["credits"], ai=[]))
-    for name in ("clock.js", "driver.js", "ui.js", "boot.js"):
+    for name in ("clock.js", "driver.js", "ui.js", "hover.js", "boot.js"):
         shutil.copyfile(os.path.join(HERE, name), os.path.join(OUT, name))
     tpl = open(os.path.join(HERE, "index.tpl.html"), encoding="utf-8").read()
     cfg_json = json.dumps(cfg, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
