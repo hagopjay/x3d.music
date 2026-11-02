@@ -1,7 +1,7 @@
 name: ci
 
 # Witnesses that run on every commit: the leak sweep and unit tests (sweep job); the Score witness and the score receipt (score job); the audio unit tests, the mutation spot-check, a fresh render of both masters and the Ear witness (audio job);
-# Grammar, Meaning, Traps, Receipts and the browser probes (worlds job); the world generators' tests, the gate on both worlds, Behaviour, Eyes, the page and hover tests and the Host witness (page job, after audio).
+# Grammar, Meaning, Traps, Receipts and the browser probes (worlds job); the world generators' tests, the gate on both worlds, Behaviour, Eyes, the page, hover and report tests and the Host witness (page job, after audio).
 # The rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
 
 # Pull requests are checked once (the merge result); main is checked after every merge. A branch push alone does not start a second, duplicate run.
@@ -239,6 +239,9 @@ jobs:
       - name: Hover tests (the card names the note under the pointer, checked against the score card)
         if: ${{ !cancelled() }}
         run: node witnesses/hover_test.mjs
+      - name: Report tests (the page's diagnostics: off without a store; with one, a small document, play and pause noticed, one write at a time)
+        if: ${{ !cancelled() }}
+        run: node witnesses/report_test.mjs
       - name: Host witness (both pieces start to end under the strict policy copy, 0 blocked requests, the real audio clock runs)
         if: ${{ !cancelled() }}
         run: node witnesses/host.mjs

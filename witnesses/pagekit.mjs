@@ -7,7 +7,7 @@ import { ROOT, abortedAfterServed } from './stage.mjs';
 
 export const PAGE = path.join(ROOT, 'build', 'page');
 
-export async function openPage({ manual = true, size = [1280, 720], hash = '', csp = undefined } = {}) {
+export async function openPage({ manual = true, size = [1280, 720], hash = '', csp = undefined, init = undefined, query = '' } = {}) {
   const manifest = JSON.parse(fs.readFileSync(path.join(PAGE, 'manifest.json'), 'utf8'));
   const published = new Set(manifest.files.map(f => f.path));
   const srv = await startServer({ root: PAGE, published, ...(csp ? { csp } : {}) });
@@ -16,8 +16,10 @@ export async function openPage({ manual = true, size = [1280, 720], hash = '', c
   const page = await context.newPage();
   page.setDefaultTimeout(180000);
   const rec = await instrument(page, srv.base);
+  if (init) await page.addInitScript(init);                    // a script that runs before the page's own (the report test gives the page a stand-in for the host's store)
   const t0 = Date.now();
-  await page.goto(srv.base + 'index.html' + (manual ? '?clock=manual' : '') + (hash ? '#' + hash : ''), { waitUntil: 'load' });
+  const qs = [manual ? 'clock=manual' : '', query].filter(Boolean).join('&');
+  await page.goto(srv.base + 'index.html' + (qs ? '?' + qs : '') + (hash ? '#' + hash : ''), { waitUntil: 'load' });
   await page.waitForFunction(() => window.Loomsong && window.Loomsong.ready, null, { timeout: 120000 });
   await page.evaluate(() => window.Loomsong.ready);
   return {

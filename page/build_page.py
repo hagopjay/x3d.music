@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Build the page: build/page/ holds every file the browser asks for, laid out the way the host serves them.
 
-    python3 -I page/build_page.py [--no-audio | --audio-only]
+    python3 -I page/build_page.py [--no-audio | --audio-only] [--out DIR]
 
   index.html            the template with the config filled in (the host wraps it in its own skeleton)
-  clock.js driver.js ui.js hover.js boot.js      the page's own scripts (no modules, no eval)
+  clock.js driver.js ui.js hover.js report.js boot.js      the page's own scripts (no modules, no eval)
   xite/                 X_ITE 16.5.1 as the page's own files (never a CDN at run time)
   worlds/<piece>.x3d    the generated worlds, DOCTYPE line removed (they publish as application/xml)
   data/<piece>.json     what the page needs from the score card: bars, tempo, sections, chords, a slim table of notes by card index, hover tables, the Ode's lines
@@ -108,6 +108,9 @@ def sha(path):
 
 
 def main(argv):
+    global OUT
+    if "--out" in argv:                                # a second build somewhere else (the private preview is built with the host's object name; build/page stays the form CI tests)
+        OUT = os.path.abspath(argv[argv.index("--out") + 1])
     audio = "--no-audio" not in argv
     os.makedirs(OUT, exist_ok=True)
     if "--audio-only" in argv:                         # CI's audio job: encode the masters it has just rendered and stop; the page job downloads the .mp4 files
@@ -117,6 +120,10 @@ def main(argv):
     for sub in ("worlds", "data", "audio"):
         os.makedirs(os.path.join(OUT, sub), exist_ok=True)
     cfg = dict(title="Loomsong", pieces=[])
+    # The name of the host's runtime object (the page's own store lives behind it) is not written in the source: the build is given it, for the private preview only. Without it the report is off.
+    cfg["hostApi"] = os.environ.get("LOOM_HOST_API", "")
+    if cfg["hostApi"] and not re.fullmatch(r"[A-Za-z_$][\w$]*", cfg["hostApi"]):
+        sys.exit("LOOM_HOST_API must be a plain identifier")
     have_audio = {}
     for p in PIECES:
         pid = p["id"]
@@ -131,7 +138,7 @@ def main(argv):
         have_audio[pid] = encode_audio(pid, audio)
         cfg["pieces"].append(dict(id=pid, n=p["n"], title=p["title"], by=p["by"], world="worlds/%s.x3d" % pid, audio="audio/%s.mp4" % pid, meta="data/%s.json" % pid,
                                   D=rep["D"], shaders=shaders, camScale=p["camScale"], credits=p["credits"], ai=[]))
-    for name in ("clock.js", "driver.js", "ui.js", "hover.js", "boot.js"):
+    for name in ("clock.js", "driver.js", "ui.js", "hover.js", "report.js", "boot.js"):
         shutil.copyfile(os.path.join(HERE, name), os.path.join(OUT, name))
     tpl = open(os.path.join(HERE, "index.tpl.html"), encoding="utf-8").read()
     cfg_json = json.dumps(cfg, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
@@ -152,7 +159,7 @@ def main(argv):
     files.sort(key=lambda x: x["path"])
     with open(os.path.join(OUT, "manifest.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(dict(files=files, audio=have_audio, total_bytes=sum(x["bytes"] for x in files)), f, indent=1)
-    print("page: %d files, %.1f MB; audio %s" % (len(files), sum(x["bytes"] for x in files) / 1e6, have_audio))
+    print("page: %d files, %.1f MB; audio %s; report %s" % (len(files), sum(x["bytes"] for x in files) / 1e6, have_audio, "on, host object named in the config" if cfg["hostApi"] else "off (LOOM_HOST_API not set)"))
     for x in files:
         if not x["path"].startswith("xite/"):
             print("  %-22s %9d" % (x["path"], x["bytes"]))

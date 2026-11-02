@@ -25,6 +25,11 @@ async function look(eye, { down = false, fov = 0.5, t = null } = {}) {
   await ev(([eye, down, fov, t]) => {
     const X = X3D, L = Loomsong;
     if (t !== null) L.clock.setTime(t);
+    // The worlds' NavigationInfo keeps X3D's default, a one-second LINEAR transition, and X_ITE starts one every time `set_bind = true` is sent, even to a viewpoint that is already bound; the pointer's pick
+    // then reads the old pose until it ends (a few slow frames, a few milliseconds of fast ones: the second floor look read the first tile, here and on a CI runner). A pose set on the bound viewpoint without
+    // a bind takes effect at once, which is how the page's rig works (it binds once per grab). The test wants the pose it set, at once, whichever it does.
+    const nav = L.browser.currentScene.rootNodes.find(n => { try { return n.getNodeTypeName() === 'NavigationInfo'; } catch (e) { return false; } });
+    if (nav) nav.transitionType = new X.MFString('TELEPORT');
     const f = L.nodes.free;
     f.position = new X.SFVec3f(...eye);
     f.orientation = down ? new X.SFRotation(1, 0, 0, -Math.PI / 2) : new X.SFRotation(0, 1, 0, 0);
@@ -34,13 +39,18 @@ async function look(eye, { down = false, fov = 0.5, t = null } = {}) {
   await A.frames(3);
   const box = await ev(() => { const r = document.querySelector('x3d-canvas').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; });
   await P.mouse.move(box[0] - 30, box[1] - 30); await A.frames(2);
-  for (let k = 0; k < 4; k++) {
+  // X_ITE picks when the pointer moves, so a card left over from the last look (a down-looking view of the floor keeps the pointer over the floor) is still showing here. Wait for a sensor hit
+  // that comes after this point, not for the card to be showing: the card is then the one for the place aimed at.
+  await ev(() => Loomsong.hover.clear());
+  const h0 = await ev(() => Loomsong.hover.hits);
+  let fresh = false;
+  for (let k = 0; k < 4 && !fresh; k++) {
     await P.mouse.move(box[0] + (k % 2), box[1] + (k >> 1));
-    try { await P.waitForFunction(() => document.querySelector('.ls-tip').getAttribute('data-show') === '1', null, { timeout: 15000 }); break; } catch (e) { /* the next move */ }
+    try { await P.waitForFunction(h0 => Loomsong.hover.hits > h0 && document.querySelector('.ls-tip').getAttribute('data-show') === '1', h0, { timeout: 15000 }); fresh = true; } catch (e) { /* the next move */ }
   }
   const shown = await ev(() => ({ show: document.querySelector('.ls-tip').getAttribute('data-show'), what: document.querySelector('.ls-tip-what')?.textContent, l1: document.querySelector('.ls-tip-1')?.textContent, l2: document.querySelector('.ls-tip-2')?.textContent, l3: document.querySelector('.ls-tip-3')?.textContent }));
   await P.mouse.move(2, 2); await A.frames(2);
-  return shown.show === '1' ? shown : null;
+  return fresh && shown.show === '1' ? shown : null;
 }
 const bye = async () => { await ev(() => Loomsong.nodes.cam.set_bind = true); };
 

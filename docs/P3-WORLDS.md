@@ -13,7 +13,7 @@ Grades: **C** a command or test showed it, **L** reasoned or read, **S** not che
 
 The spec's budgets are 150 draw calls and 1.5 million triangles a world; both worlds are far under (C). The Turca file is over the 3 MB the spec hoped for and was left alone: the host takes 16 MB a file.
 
-The page (`build/page`, 30.8 MB in 118 files, C `manifest.json`): X_ITE 16.5.1 as the page's own files (8.5 MB, 106 files), the two worlds, the masters as AAC in `.mp4` (14.7 MB), `data/<piece>.json` (the card's bars, tempo, passes, chords and a slim table of notes, 0.8 MB) and 0.05 MB of scripts (`clock.js`, `driver.js`, `ui.js`, `hover.js`, `boot.js`; no modules, no `eval`).
+The page (`build/page`, 30.9 MB in 119 files, C `manifest.json`): X_ITE 16.5.1 as the page's own files (8.5 MB, 106 files), the two worlds, the masters as AAC in `.mp4` (14.7 MB), `data/<piece>.json` (the card's bars, tempo, passes, chords and a slim table of notes, 0.8 MB) and 0.06 MB of scripts (`clock.js`, `driver.js`, `ui.js`, `hover.js`, `report.js`, `boot.js`; no modules, no `eval`).
 
 ## How a world follows the score
 
@@ -31,8 +31,9 @@ The page (`build/page`, 30.8 MB in 118 files, C `manifest.json`): X_ITE 16.5.1 a
 | Behaviour | 16 of 16 (8 a world): loads in 2.1 s (Ode) and 2.6 s (Turca) under software GL, every shader compiles (5 of 5, 11 of 11), every ROUTE fires and moves (41 ROUTEs from 16 fields, 46 from 19), the scene's clock equals the bus times the length exactly | `witnesses/behaviour.mjs` |
 | Eyes (the program's part) | 12 stills a world at fixed score times: none black, none blown out, none flat. The picture judge and the owner's eye are the other two parts and are not in this number | `witnesses/eyes.mjs` |
 | Page | 20 of 20: the splash and Play, the three views, Space, seek by bar, bar and beat and tempo arithmetic equal to the card on 60 notes a piece, the chord compass, the Ode's lines, the camera rig, calm, the end card with its credits | `witnesses/page_test.mjs` |
-| Hover | 8 of 8: the page's copy of the weave's integer hash equals the shader's on 8 vectors; a thread, a hole, a pin, a floor tile and a lit tile each name the note the score card gives (id, bar and beat included); a thread not yet woven says when it will be | `witnesses/hover_test.mjs`, `witnesses/hover_expect.py` |
-| Host | 10 of 10: each piece walked from 0 to its end in 110 steps (111 settings; the scene's clock followed the page's to 1.1 microseconds on the Ode and 5.4 on the Turca), the end card came up, 14 requests all answered 200, 0 policy violations beyond the known harmless ones, the real audio clock decoded the `.mp4` and ran in step with the page's | `witnesses/host.mjs`, under a copy of the host's policy (C for the copy, L for the real host) |
+| Hover | 8 of 8 (waits for a sensor hit that comes after it aims, with the camera teleported: D-028): the page's copy of the weave's integer hash equals the shader's on 8 vectors; a thread, a hole, a pin, a floor tile and a lit tile each name the note the score card gives (id, bar and beat included); a thread not yet woven says when it will be | `witnesses/hover_test.mjs`, `witnesses/hover_expect.py` |
+| Report | 18 of 18: with no store the report is off (no probe, no write, nothing on the splash), and it stays off when the address names a host object that never comes or when it is named without the test clock; the frame-time statistics give a made-up series its median and 1 % low to a quarter millisecond; play, pause and end are noticed and a stall is not timed as a frame; writes go one at a time however often asked; a refused write is caught and waited out; with a stand-in store the real page writes one 1.8 KB document naming the browser, renderer, policy answers, load seconds and clock mode, and adds the second piece when it is opened | `witnesses/report_test.mjs` |
+| Host | 10 of 10: each piece walked from 0 to its end in 110 steps (111 settings; the scene's clock followed the page's to 1.1 microseconds on the Ode and 5.4 on the Turca), the end card came up, 15 requests all answered 200, 0 policy violations beyond the known harmless ones, the real audio clock decoded the `.mp4` and ran in step with the page's | `witnesses/host.mjs`, under a copy of the host's policy (C for the copy, L for the real host) |
 | Reproducible | a rebuild gives the same sha256 for all six outputs, on this machine | `receipts/p3-worlds.json` |
 
 Silent crossings (C, `test_world_turca.py`): a pin meets a tooth with no note under it twice in the whole piece, at 174.583 and 174.643 s. They are the pickup graces of the second ending, whose pins sit on a band the first statement of that section turns past too (D-025). The barrel changes band 12 times and always in silence (the shortest slide is 60 ms).
@@ -44,12 +45,14 @@ Silent crossings (C, `test_world_turca.py`): a pin meets a tooth with no note un
 - **Harmless failures needed names.** X_ITE cancels the world request after the server has answered 200 (`net::ERR_ABORTED`); its own interface font is refused by the policy copy; its tangent generator's WebAssembly will not compile under it. None is used by the page; the Host witness classifies them by the server's own log and counts everything else as blocked (D-024).
 - **The page's first rig was bound to the first piece.** A grab on the Turca did nothing; the rig is now single and reset per piece. Lyrics and compass text outlived a piece switch and the corner card showed behind the splash; both fixed and tested.
 - **The tapestry could not be pointed at.** X_ITE picks on the GPU, so a faint light shaft in front of the tapestry hid it from the pointer. `Shape.pointerEvents` lets the pointer through, but it is X3D 4.1 and the worlds are 4.0, so the worlds name their effect shapes (`Fx_Shafts`, `Fx_Halo`, `Fx_Flares`) and the page sets the field by SAI (D-022).
+- **The first CI run of the page job found a flaky hover check.** "A lit tile names the lighting note" read the previous look's tile on the runner, and again here on the same tree. The cause was in the test: X_ITE starts the world's default one-second LINEAR transition whenever `set_bind = true` is sent, even to a viewpoint that is already bound, and the pointer's pick reads the old pose until it ends; frames over the floor are fast, so the pick was still at the old pose. A pose set without a bind shows at once, which is how the page's rig works, so the page was right (C, a scratch script; D-028).
+- **The audio-clock probe read 0.998667 on a shared runner.** C5 fits a line to the context clock against `performance.now()` over 2.5 s; one 3 ms stall at either end of that window moves the slope by 0.0013. C6, the check that matches how the page reads time, read 1.000000 in the same run. The probe now fits over 8 s with the same tolerance and keeps its rows; a runner whose audio thread is starved can still fail it, because then the clock really does run slow (C, a study with the cores busy; D-027).
 
 ## Still unknown (S unless marked)
 
 - **How it runs on a real GPU.** Every frame here is software-drawn (SwiftShader, about 0.6 s a frame); no frame rate is quoted anywhere. The Fps witness needs a real GPU.
 - **How it sounds and how it looks to a person.** The masters are set by meters, and the picture judge and the owner's eye have not seen these frames before the first stop-and-show.
-- **The real host's policy.** The Host witness runs a copy written from the Artifact page contract (C for the copy, L for the host). WebAssembly, blob workers and AAC decode on the real host are unchecked.
+- **The real host's policy.** The Host witness runs a copy written from the Artifact page contract (C for the copy, L for the host). WebAssembly, blob workers and AAC decode on the real host are unchecked here; the private preview page reports them from the host itself (`page/report.js`, D-029), and what it says goes into `docs/FACTS.md` when it has been opened there.
 - **Safari and Firefox,** and audio latency on real devices (the Sync witness).
 - **Flashes.** The Flash witness (no harmful flashes) is not written yet; the Turca's lit tiles and the Ode's rose are the places to look.
 - **The Ode's picture is a procedural stand-in** (the spark over a landscape with linked silhouettes, drawn in `gen/picture_ode.py`). The generated picture comes in P4 and will be labelled AI-made.
@@ -64,8 +67,8 @@ X3D_MCP=<validator> LOOM_GATE=<gate tools> python3 -I witnesses/gate_all.py buil
 python3 -I page/build_page.py [--no-audio]                      # build/page (the masters are encoded from build/audio when present)
 node witnesses/behaviour.mjs --world build/worlds/ode.x3d       # and turca
 node witnesses/eyes.mjs --world build/worlds/ode.x3d --out build/stills/eyes-ode
-node witnesses/page_test.mjs && node witnesses/hover_test.mjs && node witnesses/host.mjs
+node witnesses/page_test.mjs && node witnesses/hover_test.mjs && node witnesses/report_test.mjs && node witnesses/host.mjs
 python3 -I witnesses/receipts.py check receipts/p3-worlds.json
 ```
 
-CI runs all of it in the `page` job, after the audio job has rendered the masters and encoded them.
+CI runs all of it in the `page` job, after the audio job has rendered the masters and encoded them. The private preview is built with `LOOM_HOST_API=<name of the host's runtime object> python3 -I page/build_page.py --no-audio` (the name is not in the source, D-029); without it the report is off.

@@ -43,7 +43,7 @@ Software GL says nothing about frame rate (S until the Fps witness runs on a rea
 | C-mp4 | AAC `.mp4` decodes with no onset shift | shift 0.000 ms and 0.000 ms against the wav | C |
 | C-ogg | Opus `.ogg` decodes with no onset shift | 0.000 ms, 0.000 ms | C |
 | C-mp3 | `.mp3` decodes with no onset shift | 0.000 ms, 0.000 ms | C |
-| C5 | The `AudioContext` runs and its clock advances at 1.000 +/- 0.001 of `performance.now()` | state running; slope 0.9996 to 0.9999 over 2.5 s in five runs | C headless |
+| C5 | The `AudioContext` runs and its clock advances at 1.000 +/- 0.001 of `performance.now()` | state running; slope 0.9996 to 0.9999 over 2.5 s in five runs; **one CI run read 0.998667 over 2.5 s** (the page-facing C6 read 1.000000 in the same run), so the probe now fits over 8 s with the same tolerance (D-027) | C headless |
 | C6 | `getOutputTimestamp()` maps context time to performance time with slope 1 | slope 0.99996 to 1.000003; residual 0.1 to 2 ms | C headless |
 
 `canPlayType` answers "probably" for `.mp4` AAC, `.ogg` Opus and `.mp3` (C, Chrome 153). `outputLatency` reads 32 ms and `baseLatency` 10 ms with no audio device, so those numbers are the headless defaults, not a real device's (S). Safari and Firefox were not run (S): AAC `.mp4` is the choice every current browser plays (L).
@@ -100,6 +100,8 @@ No paid call was made in P0. If the project owner enables the newer API for the 
 | F6 | X_ITE asks for nothing the host would refuse | With `splashScreen`, `contextMenu`, `notifications` and `timings` set to "false" the stepped Host run made 14 requests, all answered 200. Three harmless cases remain: the cancelled world request after a 200 (`net::ERR_ABORTED`), its interface font if the attributes are left on, and its tangent generator's WebAssembly, which will not compile under the strict policy copy and which the page does not use | C, Host witness |
 | F7 | The Web Audio clock reads in headless Chrome | Yes: `getOutputTimestamp` gives a usable pair; the context reported 44.1 kHz, a base latency of 0.010 s and an output latency of 0.032 s. The master decodes from the `.mp4` and the page's clock advanced 7.835 s while the audio clock advanced 7.835 s | C in headless Chrome, S on real devices |
 | F8 | A frame costs | About 0.6 s in software GL at 1280 by 720, so no frame rate is quoted | C for the figure |
+| F9 | A pose set on a bound `Viewpoint` shows at once | Without a bind, yes: the pick under the camera was exactly under it in 4 of 4 floor looks. Re-sending `set_bind = true` to the same, already bound, viewpoint starts the `NavigationInfo` transition (X3D's default is one second, LINEAR; the worlds keep it) and the pointer's pick reads the old pose until it ends: with `transitionType` TELEPORT it was exact in 4 of 4 as well. The page's rig binds once per grab, so it is not affected (D-028) | C, a scratch script of four floor looks in three variants |
+| F10 | A host's content policy can be read from inside the page | Yes, to the extent the page can try: `page/report.js` compiles an empty WebAssembly module, starts a blob worker and listens for `securitypolicyviolation`, and writes the answers to the page's own store (D-029). Under the strict policy copy it read `CompileError` for WebAssembly, `ok` for the blob worker and two `script-src` refusals (the probe's and X_ITE's tangent generator's). The real host's answers arrive when the preview is opened there | C under the copy, S for the host |
 
 ## Still S after P0
 

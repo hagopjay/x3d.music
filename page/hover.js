@@ -26,6 +26,7 @@
 
   function Hover(app) {
     this.app = app; this.ui = null; this.meta = null; this.px = 0; this.py = 0; this.down = false; this.cur = null; this.lastShow = 0;
+    this.hits = 0;                       // how many times a sensor has reported a hit and the card has been updated for it: the hover test waits on this, so it never reads a card that is not for the place it aimed at
     this.pixels = null; this.cellsW = 0;
     var self = this, host = app.host;
     host.addEventListener('pointermove', function (e) { self.px = e.clientX; self.py = e.clientY; }, true);
@@ -47,7 +48,7 @@
       var s = null;
       try { s = scene.getNamedNode(def); } catch (e) { s = null; }
       if (!s) return;
-      s.addFieldCallback('loom-hover', 'hitPoint_changed', function (p) { self.cur = { fn: fn, p: { x: p.x, y: p.y, z: p.z } }; self.refresh(); });
+      s.addFieldCallback('loom-hover', 'hitPoint_changed', function (p) { self.cur = { fn: fn, p: { x: p.x, y: p.y, z: p.z } }; self.refresh(); self.hits++; });
       s.addFieldCallback('loom-hover', 'isOver', function (on) { if (!on) self.clear(); });
     };
     if (id === 'ode') {
