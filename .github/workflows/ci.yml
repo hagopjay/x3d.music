@@ -3,9 +3,10 @@ name: ci
 # Witnesses that run on every commit: the leak sweep and unit tests (sweep job); then Grammar, Meaning, Traps, Receipts and the browser probes (worlds job).
 # Score, Ear and the rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
 
+# Pull requests are checked once (the merge result); main is checked after every merge. A branch push alone does not start a second, duplicate run.
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
 
 permissions:
@@ -67,6 +68,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Install ffmpeg (the click-track fixtures need it; the runner image has none on its path)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -version | head -1
       - name: Fetch the pinned X_ITE (sha512 checked)
         run: python3 -I tools/fetch_xite.py
       - name: Build the probe worlds

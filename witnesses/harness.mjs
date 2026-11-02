@@ -73,10 +73,10 @@ export async function launch({ gl = process.env.LOOM_GL || 'swiftshader' } = {})
   const args = ['--no-sandbox', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required', '--disable-background-networking', '--disable-component-update', '--disable-sync', '--no-first-run'];
   if (gl === 'swiftshader') args.push('--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader');
   else args.push('--use-gl=angle', '--use-angle=gl-egl', '--enable-gpu-rasterization');
-  // GEN_CHROME names a binary; else the sandbox's pre-installed Chrome for Testing; else Playwright's own download (what CI uses).
-  const sandboxChrome = '/opt/pw-browsers/chromium-1243/chrome-linux64/chrome';
-  const executablePath = process.env.GEN_CHROME || (fs.existsSync(sandboxChrome) ? sandboxChrome : undefined);
-  const browser = await chromium.launch({ executablePath, args });
+  // GEN_CHROME names a binary. Otherwise ask Playwright for its full Chrome for Testing in the new headless mode (channel 'chromium'),
+  // not the old headless shell it would pick by default: the sandbox and CI then run the same browser build (pins.json: browser).
+  const executablePath = process.env.GEN_CHROME || undefined;
+  const browser = await chromium.launch(executablePath ? { executablePath, args } : { channel: 'chromium', args });
   return { browser, gl, chrome: browser.version(), playwright: require('playwright/package.json').version };
 }
 
