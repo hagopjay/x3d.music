@@ -11,6 +11,7 @@ Grades: **C** a command or test showed it, **L** reasoned or read, **S** not che
 | Pictures in the worlds | In. The Ode's tapestry picture (`art/ode-tapestry.png`) and the Turca's dome atlas (`art/dome-motifs.jpg`) are chosen (the first tapestry candidate, motifs A to L), woven or tiled by the generators, and labelled AI-made in the corner note and the credits. The owner has not marked the drafts page yet, so the picks are mine and are one command to change (`tools/prep_art.py --tapestry tapestry-cand-N`) |
 | Animated cards | In the page: a picture behind the title card, an opening over each piece, a picture behind the end card. The four finals (1080p) are re-encoded to 3 to 6 MB each and are not in this repository (`tools/prep_cards.py`). The credits and bumper stills have drafts only |
 | Backdrops as 3D worlds | Not in a world. The three clips pass the Pose witness; photoreal splats and the Fidelity witness need the stopped GPU machine, which waits for the owner's typed yes (D-038) |
+| Further paid generation | Stopped. The owner cut the spending cap below what had already been spent (5 Nov), so the credits and bumper clips, the other finals for the backdrops and the GPU training are not made (D-040) |
 | Prompts and labels | `docs/PROMPTS.md`: 29 rows, each with the sha256 of the prompt as sent, the label shown with the result, the ledger run id and what became of it |
 
 ## What was built
@@ -55,7 +56,7 @@ The dome with its picture is much darker than the dome without it. The Atlas wit
 
 - **How the AI worlds look to a person.** The owner has not marked the drafts page; the picture judge's flags were answered, his eye is the judge of record.
 - **Photoreal splats.** Training and the Fidelity witness wait for the GPU machine (D-038). The dust stand-in is graded for what it is.
-- **Whether the real host plays the cards' video, and how the page runs on a real GPU.** The private preview's report says, once it has been opened there (`cards`, `env`, `play` in `reports/<id>`). A card that does not play shows its poster and costs nothing else (C, Cards test).
+- **Whether the real host plays the cards' video.** The one report read so far (3 Nov, PROBES I) is of the earlier page without cards: it says WebAssembly and blob workers are allowed and the page held about 60 frames a second on an integrated GPU, which the cards and the dome's atlas add to. The new preview's report will say (`cards`, `env`, `play` in `reports/<id>`). A card that does not play shows its poster and costs nothing else (C, Cards test).
 - **Whether autoplay of a muted video is allowed on every phone and in every browser.** Safari and Firefox are not checked (S).
 - **The licence of `art/`.** CC BY 4.0 is a default in NOTICE.md; it is the owner's to change.
 

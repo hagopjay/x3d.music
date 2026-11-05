@@ -198,3 +198,8 @@ The three backdrop clips pass the Pose witness on a CPU (COLMAP, all 48 sampled 
 
 P4 changed what the world generators read (`gen/artlib.py`, `art/`, `gen/shaders/motif_lib.glsl`) and the generators and the dome's shader themselves, so `receipts/p3-worlds.json` can no longer be checked: its inputs changed on purpose and a check reports STALE. `receipts/p4-worlds.json` lists all 49 inputs and the seven outputs (both worlds, their maps and reports, and the dome's atlas copied beside the Turca) and a rebuild gives the same sha256 here (the Ode `b43ad7c0...`, the Turca `64f6f459...`). The P3 receipt stays as the record of that run, with a note saying so; it is not checked by CI.
 *Why:* as D-018, a receipt has to name the code that makes the bytes, and an old record is not rewritten to say something new. *Undo:* none needed.
+
+## D-040 (5 Nov 2026) No further paid generation: the owner cut the spending cap below what is spent
+
+On 5 Nov the owner lowered the total spending cap to a figure under what P0 to P4 had already spent. Every paid call the build makes (video, images, the picture judge, GPU time) now refuses: the private runner's hard stop is at the new cap, and the ledger carries a note with the date. What is not made and stays unmade: the credits and bumper clips, finals for the courtyard and hall backdrops, the photoreal splat training and the Fidelity witness (D-038), and any later model-voiced stage. What is free still goes ahead: the generators, the page, the witnesses, a Blender render on the CPU, and the preview.
+*Why:* the cap is the owner's, and a build that spends past it is not finished work. *Undo:* the owner raises the cap in words; the runner's hard stop is one line.

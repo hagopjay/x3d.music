@@ -27,8 +27,8 @@ Grades: **C** confirmed by a command or file whose source is named; **L** likely
 | X_ITE | 16.5.1 is the pin (npm tarball, sha512 in `tools/pins.json`). 16.6.0, 16.6.1 and 16.7.0 exist and are untested here | C, npm registry |
 | Measuring browser | Chrome for Testing 153.0.8010.12, headless, driven by Playwright 1.63.0, software GL (ANGLE over SwiftShader), no GPU | C |
 | Audio decode | AAC in `.mp4`, Opus in `.ogg`, `.mp3` and `.wav` all decode through `decodeAudioData`, with no onset shift against the wav | C, Chrome 153, ffmpeg 6.1.1 encoders |
-| X3D 4.1 splats | `GaussianSplats` needs a file declared 4.1; X_ITE 16.5.1 refuses it in a 4.0 file. It draws only if the page's policy lets WebAssembly compile (its sorter is WebAssembly) | C under a policy copy, S on the real host |
-| The real host's policy | Not visible from the build sandbox. The policy copy is written from the published page contract: scripts from the page itself, inline and five named CDNs; fetches only from the page itself; no `unsafe-eval` | L |
+| X3D 4.1 splats | `GaussianSplats` needs a file declared 4.1; X_ITE 16.5.1 refuses it in a 4.0 file. It draws only if the page's policy lets WebAssembly compile (its sorter is WebAssembly) | C under a policy copy; the real host lets WebAssembly compile (PROBES I1), so the sorter can run there, but a splat world has not been drawn there (S) |
+| The real host's policy | Not visible from the build sandbox. The policy copy is written from the published page contract: scripts from the page itself, inline and five named CDNs; fetches only from the page itself; no `unsafe-eval`. One report from the real host (PROBES I) says WebAssembly compile and blob workers are allowed and lists no violation | L for the copy, C for the two measured items |
 
 ## The tools that judge the work
 
@@ -83,8 +83,8 @@ A published page is one HTML file plus supporting files; each file at most 16 MB
 | X_ITE 16.5.1 SAI | `scene.routes` lists ROUTEs; `addFieldCallback(key, field, fn)` takes the key first and `getField` is deprecated; `Viewpoint` has no position or orientation offsets; `PixelTexture.image` reads back as width, height, components and one 0xRRGGBBAA integer a pixel; the Clock ships disabled | C, `witnesses/behaviour.mjs`, `page/driver.js` |
 | X_ITE picking | On the GPU: every shape with `pointerEvents` true hides a TouchSensor's shape behind it, faint or not; `Shape.pointerEvents` is in the 4.1 schema only | C, `witnesses/hover_test.mjs` before and after; the 4.1 schema |
 | Tests | 81 generator tests, 28 witness tests that need no audio tools, Behaviour 16 (8 a world), Atlas 9, page 20, hover 8, report 18, Cards 23, Host 10 | C, `docs/P3-WORLDS.md`, `docs/P4-MEDIA.md` |
-| Frame time | About 0.6 s a frame in software GL; no frame rate is quoted | C for the figure, a real GPU is S |
-| How it runs on a real GPU, how it sounds | Not known | S |
+| Frame time | About 0.6 s a frame in software GL. On one real machine (Windows, Chrome 156, an Intel UHD 620 integrated GPU, a window of 1105 by 576) the page held a median 59.7 frames a second on both pieces, 1 % lows 58.8 and 58.0, and 2 of 4,363 frames over 33 ms on the Turca | C for that machine and window (PROBES I2), S elsewhere |
+| How it sounds and looks to a person | Not known (no notes have come back) | S |
 
 ## The generated media (P4, see P4-MEDIA.md and PROBES.md H)
 

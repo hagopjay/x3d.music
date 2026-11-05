@@ -117,10 +117,22 @@ No paid call was made in P0. If the project owner enables the newer API for the 
 | H8 | A muted `<video>` with a poster plays under the strict policy copy (media-src 'self') and the music does not wait for it | Yes in headless Chrome: the title card reached ready state 4 and played, an opening covered the world while the clock ran, and with the video files withheld the poster showed and only the failed requests were reported. The real host's behaviour is read from the preview's report (`cards` in `reports/<id>`) | C under the copy, S on the real host |
 | H9 | Re-encoding strips a generated clip's metadata | Yes, in two steps: the encode drops every tag of the source and every SEI unit (the encoder's settings line is one), then a copy into a fresh container drops the encoder string the encoder writes into its own stream. The originals carry an encoder string of their maker; a card carries the container's own brand and handler names and our one comment ("AI-made: ..."), and nothing else (a first attempt with the encoder's own flags left both the string and the settings line; the test now looks for them). The posters are rebuilt from pixels and pass the sweep's image rule | C, `ffprobe`, `strings`, `witnesses/test_cards_media.py` |
 
+## I. The private preview on a real machine (P3's page, one report read on 5 Nov 2026)
+
+The preview of 2 Nov (the P3 page: no generated pictures, no cards) wrote one report on 3 Nov when it was opened. It is one machine, one window and one session, so each line says which.
+
+| Id | Question | Observed | Grade |
+|---|---|---|---|
+| I1 | Does the real host let WebAssembly compile and blob workers run? | Yes: both read ok; the report lists no policy violation and no page error | C, one report |
+| I2 | Does the page hold a frame rate on a real GPU? | On Windows with Chrome 156 and an Intel UHD 620 integrated GPU (ANGLE over Direct3D 11), in a window of 1105 by 576 at a device pixel ratio of 1.1: the Ode played 42 s at a median 59.7 frames a second (1 % low 58.8, none over 33 ms), the Turca 73.2 s at a median 59.7 (1 % low 58.0, 2 of 4,363 frames over 33 ms, none over 50 ms); X_ITE's own meter read 58.8 | C for that machine and window; S for a larger window or another machine |
+| I3 | Does the AAC master decode and the audio clock run there? | Yes: mode `webaudio`, state running, 48,000 Hz, base latency 10 ms, output latency 48 ms; the decoded buffers are 215.877 s and 218.857 s, the masters' lengths | C, one report |
+| I4 | How long until a piece is ready? | 4.4 s (Ode) and 4.8 s (Turca) after it was asked for | C, one report |
+| I5 | What did this report not see? | The generated pictures, the dome's atlas and the cards (the page it read predates them), Safari, Firefox, a phone, and how it sounds and looks to a person | S |
+
 ## Still S after P0
 
 - Decode and playback in Safari and Firefox; audio latency on real devices.
-- Frame rate on a real GPU (Fps witness, cloud GPU).
-- The real host's policy: WebAssembly compile, blob workers, AAC decode, WebGL2. The first stop-and-show page carries a self-test that reports them (D-004).
+- Frame rate on other machines and in a larger window (one real report is in section I; the Fps witness proper needs a defined machine).
+- The real host's policy for a *new* thing: WebAssembly compile, blob workers, AAC decode and WebGL2 are answered by section I; video playback in the cards is not (the preview must be opened with them).
 - X_ITE splat budgets at scale (1.5 M splats per world): P4. Draw calls and triangles were measured in P3 and both worlds are far under (`P3-WORLDS.md`).
 - The output of the fallback video family.
