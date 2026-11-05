@@ -1,7 +1,7 @@
 name: ci
 
 # Witnesses that run on every commit: the leak sweep and unit tests (sweep job); the Score witness and the score receipt (score job); the audio unit tests, the mutation spot-check, a fresh render of both masters and the Ear witness (audio job);
-# Grammar, Meaning, Traps, Receipts and the browser probes (worlds job); the world generators' tests, the gate on both worlds, Behaviour, Eyes, the page, hover and report tests and the Host witness (page job, after audio).
+# Grammar, Meaning, Traps, Receipts and the browser probes (worlds job); the world generators' tests, the gate on both worlds and on their stand-ins without the generated pictures, Behaviour and Eyes on both sets, the Atlas witness, the page, hover, report and Cards tests (with test-pattern cards) and the Host witness (page job, after audio).
 # The rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
 
 # Pull requests are checked once (the merge result); main is checked after every merge. A branch push alone does not start a second, duplicate run.
@@ -212,14 +212,32 @@ jobs:
           python3 -I gen/world_ode.py
           python3 -I gen/world_turca.py
           sha256sum build/worlds/ode.x3d build/worlds/turca.x3d
-      - name: Unit tests (meshes, shared world code, the Ode world, the Turca world)
+      - name: Generate the stand-in worlds too (LOOM_ART=procedural, the pictures drawn by code that every world keeps as its floor)
+        run: |
+          LOOM_ART=procedural python3 -I gen/world_ode.py --out build/worlds-standin
+          LOOM_ART=procedural python3 -I gen/world_turca.py --out build/worlds-standin
+      - name: Unit tests (meshes, shared world code, the Ode world, the Turca world, the picture and the art switch)
         run: python3 -I -m pytest -q gen
       - name: Grammar, Meaning, Traps on both worlds (pinned validator and gate, plus the five Loomsong rules)
         env:
           X3D_MCP: ${{ github.workspace }}/.pins/x3d_mcp
           LOOM_GATE: ${{ github.workspace }}/.pins/x3d.onto/gobbler-demiurge/tools
         run: python3 -I witnesses/gate_all.py build/worlds --out build/runs/gate.json
-      - name: Build the page (the worlds, the cards' tables, the scripts, X_ITE as the page's own files, the masters as .mp4)
+      - name: Grammar, Meaning, Traps on the stand-in worlds
+        env:
+          X3D_MCP: ${{ github.workspace }}/.pins/x3d_mcp
+          LOOM_GATE: ${{ github.workspace }}/.pins/x3d.onto/gobbler-demiurge/tools
+        run: python3 -I witnesses/gate_all.py build/worlds-standin --out build/runs/gate-standin.json
+      - name: Install ffmpeg (it makes the test cards)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -version | head -1
+      - name: Make the test cards (four two-second test patterns standing in for the animated pictures, which are video and not in this repository)
+        run: python3 -I tools/prep_cards.py --synthetic
+      - name: Card media tests (a card holds nothing but pixels and our comment; the page ships only cards that match the manifest)
+        run: python3 -I -m pytest -q witnesses/test_cards_media.py
+      - name: Build the page (the worlds, the art, the cards, the tables, the scripts, X_ITE as the page's own files, the masters as .mp4)
         run: python3 -I page/build_page.py --no-audio
       - name: Behaviour, Ode (loads, shaders compile, every ROUTE fires and moves, the bus is exact)
         if: ${{ !cancelled() }}
@@ -233,6 +251,23 @@ jobs:
       - name: Eyes, Turca
         if: ${{ !cancelled() }}
         run: node witnesses/eyes.mjs --world build/worlds/turca.x3d --out build/stills/eyes-turca
+      - name: Behaviour, Ode stand-in (the picture drawn by code)
+        if: ${{ !cancelled() }}
+        run: node witnesses/behaviour.mjs --world build/worlds-standin/ode.x3d --out build/runs-standin
+      - name: Behaviour, Turca stand-in (the dome's own tiles)
+        if: ${{ !cancelled() }}
+        run: node witnesses/behaviour.mjs --world build/worlds-standin/turca.x3d --out build/runs-standin
+      - name: Eyes, Ode stand-in
+        if: ${{ !cancelled() }}
+        run: node witnesses/eyes.mjs --world build/worlds-standin/ode.x3d --out build/stills/eyes-ode-standin --runs build/runs-standin
+      - name: Eyes, Turca stand-in
+        if: ${{ !cancelled() }}
+        run: node witnesses/eyes.mjs --world build/worlds-standin/turca.x3d --out build/stills/eyes-turca-standin --runs build/runs-standin
+      - name: Atlas witness (each motif on the dome is the way up it is in the picture file; the dome still draws when the picture does not arrive)
+        if: ${{ !cancelled() }}
+        run: |
+          python3 -I gen/probes/make_atlas_probe.py
+          node witnesses/atlas_test.mjs
       - name: Page tests (modes, keys, seek by bar, the card's own arithmetic, the camera rig, the end card)
         if: ${{ !cancelled() }}
         run: node witnesses/page_test.mjs
@@ -242,6 +277,9 @@ jobs:
       - name: Report tests (the page's diagnostics are off without a store; with one, a small document, play and pause noticed, one write at a time)
         if: ${{ !cancelled() }}
         run: node witnesses/report_test.mjs
+      - name: Cards tests (title, openings and the card between the pieces play over and behind the page, never in the music's timing; the page copes without the videos)
+        if: ${{ !cancelled() }}
+        run: node witnesses/cards_test.mjs
       - name: Host witness (both pieces start to end under the strict policy copy, 0 blocked requests, the real audio clock runs)
         if: ${{ !cancelled() }}
         run: node witnesses/host.mjs
@@ -251,7 +289,10 @@ jobs:
           name: p3-worlds-run
           path: |
             build/runs
+            build/runs-standin
             build/stills/eyes-ode
             build/stills/eyes-turca
+            build/stills/eyes-ode-standin
+            build/stills/eyes-turca-standin
             build/worlds/*.report.json
           retention-days: 14

@@ -48,14 +48,15 @@ sources/    the kern file, the hand-encoded Ode theme, sample manifests (no big 
 score/      build_score.py  ->  ode.score.json, turca.score.json (schema in docs/SCORE-SCHEMA.md)
 audio/      the Faust voices, the piano sampler, render, mix and master scripts, unit tests and a mutation spot-check (audio/README.md)
 tracks/     feature tracks sampled at 60 Hz
-gen/        world generators, X3D writer helpers, shaders
+gen/        world generators, X3D writer helpers, shaders, the art switch (artlib.py)
+art/        the generated pictures the worlds use (the Ode's tapestry picture, the Turca's dome atlas) and manifest.json; AI-made, labelled where they appear
 page/       the page: clock, SAI driver, interface, hover, report; build_page.py lays out build/page
 blender/    film scripts
 witnesses/  the checks above
 receipts/   one Loom Receipt per artifact
 runs/       per-run witness results
-docs/       FACTS.md, DECISIONS.md, PROMPTS.md, PROBES.md (and p0/, the raw probe record), P1-SCORES.md, SCORE-SCHEMA.md, HARMONY.md, MIX.md, P2-AUDIO.md, P3-WORLDS.md
-tools/      pins.json (every checker pinned), fetch_xite.py
+docs/       FACTS.md, DECISIONS.md, PROMPTS.md, PROBES.md (and p0/, the raw probe record), P1-SCORES.md, SCORE-SCHEMA.md, HARMONY.md, MIX.md, P2-AUDIO.md, P3-WORLDS.md, P4-MEDIA.md
+tools/      pins.json (every checker pinned), fetch_xite.py, prep_art.py and prep_cards.py (generated pictures and clips into art/ and the page's cards)
 build/      outputs (git-ignored)
 ```
 
@@ -66,8 +67,8 @@ build/      outputs (git-ignored)
 | P0 | Set-up and probes | done; the probe report is `docs/PROBES.md` |
 | P1 | Score cards | built; the Score witness checks both against their sources (`docs/P1-SCORES.md`) |
 | P2 | The two masters | built: both at minus 14.00 LUFS, Score 51 of 51 and Ear 20 of 20; no human has listened yet (`docs/P2-AUDIO.md`, `docs/MIX.md`) |
-| P3 | The worlds, live | built: both worlds, the page and Learn-mode hover; the gate, Behaviour, Eyes (the program's part), the page, hover and report tests and the Host witness (110 steps a piece) are green; nobody has run it on a real GPU or listened, and the private preview writes its own report from the real host (`docs/P3-WORLDS.md`) |
-| P4 | Generated media | not started |
+| P3 | The worlds, live | built: both worlds, the page and Learn-mode hover; the gate, Behaviour, Eyes (the program's part), the page, hover and report tests and the Host witness (110 steps a piece) are green; one real machine (an integrated GPU, Chrome on Windows) ran both pieces at about 60 frames a second and allowed WebAssembly and blob workers, as the private preview's own report says; no one has reported how it sounds or looks (`docs/P3-WORLDS.md`, `docs/PROBES.md` I) |
+| P4 | Generated media | built in part: the Ode's tapestry is woven from a generated picture, the Turca's dome is tiled with twelve generated motifs, and four animated cards frame the pieces, each labelled AI-made and each prompt in `docs/PROMPTS.md`; every world still builds and passes without them. The three backdrops pass the Pose witness but are not in a world yet (photoreal splats wait for the GPU machine); nobody has looked at it on a real screen (`docs/P4-MEDIA.md`) |
 | P5 | Improvement rounds | not started |
 | P6 | The films | not started |
 | P7 | Publish | not started |

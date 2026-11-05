@@ -1,0 +1,78 @@
+{
+ "schema": "loomsong.art/1",
+ "note": "AI-made pictures the worlds can use. `use` is the switch gen/artlib.py reads (ai or procedural); the prompts are in docs/PROMPTS.md.",
+ "items": {
+  "ode-tapestry": {
+   "file": "ode-tapestry.png",
+   "use": "ai",
+   "size": [
+    512,
+    768
+   ],
+   "bytes": 914163,
+   "sha256": "c46bcc39aaa1f4ab14d681f85a9cfd383aaa65238dcbf74e632e35e7f806bc5d",
+   "prompt_id": "tapestry-cand-1",
+   "source_sha256": "aeee13e59232b8277ee8daebd02992e98512341e7f00ac643655b54fc99c8d0a",
+   "label": "AI-made: a generated picture, see docs/PROMPTS.md"
+  },
+  "dome-motifs": {
+   "file": "dome-motifs.jpg",
+   "use": "ai",
+   "size": [
+    2048,
+    1536
+   ],
+   "bytes": 2354796,
+   "sha256": "1c076a5ab4fc730267284d73df5457d2636cce862fb8a821ec058fb2479e8d1d",
+   "atlas": {
+    "cols": 4,
+    "rows": 3,
+    "tile": 512,
+    "gutter": 16,
+    "order": [
+     "motif-A",
+     "motif-B",
+     "motif-C",
+     "motif-D",
+     "motif-E",
+     "motif-F",
+     "motif-G",
+     "motif-H",
+     "motif-I",
+     "motif-J",
+     "motif-K",
+     "motif-L"
+    ]
+   },
+   "prompt_ids": [
+    "motif-A",
+    "motif-B",
+    "motif-C",
+    "motif-D",
+    "motif-E",
+    "motif-F",
+    "motif-G",
+    "motif-H",
+    "motif-I",
+    "motif-J",
+    "motif-K",
+    "motif-L"
+   ],
+   "source_sha256": {
+    "motif-A": "05a5679af80f8fc907e0f021934568a84debd5855ca071f67a1f1b80bacdb81f",
+    "motif-B": "c4c00198cfe2ca86324196988b97d7d9a8244b21e40cc48a6da300fb81d78dac",
+    "motif-C": "7e09da42390e93e5a730d79af33afc7916363234bdc33754e6a299aa53f25e22",
+    "motif-D": "3aec90890920d87928bc5cf3f87922b93286abf070e9fae4bf3ac528a5eff93d",
+    "motif-E": "3aa5fbef475016af95bfa2f9cb9393c6e154dcc4d2e86ae207121a68abfd515d",
+    "motif-F": "9b2b29d82ee55233a531a2e0c3eabceee295d8ad634848d65c2479e5de5f51e4",
+    "motif-G": "d806323f6aeda0f75d87b2473bbc322127a69c1108530a0faf4a8781d1dc04ab",
+    "motif-H": "2ce1afbfc6ccfbffa2feba068ce4423b7ab5c526719c903ff72cb2fa549c5848",
+    "motif-I": "cfdec736567b134debb46acc15354545696e691c9955c123eba7d719a2927761",
+    "motif-J": "c35f9ee21d290a09168af5a6664a9a699eb6614d9c4bc1c9b1ce2c7501c97e59",
+    "motif-K": "bba0470bbeb8e87fa63c1ad3daeff8d838320e500347d50080fdd4e41be33ac6",
+    "motif-L": "5b23d978912c8e2e2919b7f600b5d28298934823d7d673908ed26d101f3d25bf"
+   },
+   "label": "AI-made: a generated picture, see docs/PROMPTS.md"
+  }
+ }
+}

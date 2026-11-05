@@ -16,11 +16,13 @@ const pageHtml = (W, H) => `<title>Loomsong stage</title>
 <script>
 const B = () => X3D.getBrowser(document.getElementById('c'));
 const frames = n => new Promise(res => { let i = 0; const f = () => (++i >= n ? res() : requestAnimationFrame(f)); requestAnimationFrame(f); });
+// A world's pictures (ImageTexture nodes named Pic_*) load after the scene does; a still taken before they are in would show the procedural fallback. Done means loaded or given up on (failed).
+const picturesDone = s => ['Pic_motifs'].every(n => { try { const st = s.getNamedNode(n).checkLoadState(); return st === X3D.X3DConstants.COMPLETE_STATE || st === X3D.X3DConstants.FAILED_STATE || st === undefined; } catch (e) { return true; } });
 window.stage = {
   async ready(timeout = 120000) {
     const t0 = performance.now();
     for (;;) {
-      try { const s = B().currentScene; if (s && s.getNamedNode('FractionBus')) return true; } catch (e) {}
+      try { const s = B().currentScene; if (s && s.getNamedNode('FractionBus') && picturesDone(s)) return true; } catch (e) {}
       if (performance.now() - t0 > timeout) throw new Error('scene did not load');
       await new Promise(r => setTimeout(r, 100));
     }
@@ -65,6 +67,8 @@ export async function openStage(world, { W = 1280, H = 720, tag = null } = {}) {
   fs.rmSync(site, { recursive: true, force: true });
   fs.mkdirSync(site, { recursive: true });
   fs.copyFileSync(world, path.join(site, 'world.x3d'));
+  const art = path.join(path.dirname(world), 'art');                      // the pictures a world names by relative url sit beside it
+  if (fs.existsSync(art)) fs.cpSync(art, path.join(site, 'art'), { recursive: true });
   fs.symlinkSync(path.join(ROOT, 'build', 'xite'), path.join(site, 'xite'));
   fs.writeFileSync(path.join(site, 'index.html'), pageHtml(W, H));
   const srv = await startServer({ root: site });

@@ -51,9 +51,9 @@ Silent crossings (C, `test_world_turca.py`): a pin meets a tooth with no note un
 
 ## Still unknown (S unless marked)
 
-- **How it runs on a real GPU.** Every frame here is software-drawn (SwiftShader, about 0.6 s a frame); no frame rate is quoted anywhere. The Fps witness needs a real GPU.
+- **How it runs on a real GPU.** Every frame in these witnesses is software-drawn (SwiftShader, about 0.6 s a frame). *Update 5 Nov:* the preview's report from one real machine says a median 59.7 frames a second on both pieces (PROBES I2); other machines and a larger window are not known.
 - **How it sounds and how it looks to a person.** The masters are set by meters, and the picture judge and the owner's eye have not seen these frames before the first stop-and-show.
-- **The real host's policy.** The Host witness runs a copy written from the Artifact page contract (C for the copy, L for the host). WebAssembly, blob workers and AAC decode on the real host are unchecked here; the private preview page reports them from the host itself (`page/report.js`, D-029), and what it says goes into `docs/FACTS.md` when it has been opened there.
+- **The real host's policy.** The Host witness runs a copy written from the Artifact page contract (C for the copy, L for the host). The private preview page reports WebAssembly, blob workers and AAC decode from the host itself (`page/report.js`, D-029). *Update 5 Nov:* one report came back and all three are fine on that machine (PROBES I1, I3).
 - **Safari and Firefox,** and audio latency on real devices (the Sync witness).
 - **Flashes.** The Flash witness (no harmful flashes) is not written yet; the Turca's lit tiles and the Ode's rose are the places to look.
 - **The Ode's picture is a procedural stand-in** (the spark over a landscape with linked silhouettes, drawn in `gen/picture_ode.py`). The generated picture comes in P4 and will be labelled AI-made.
@@ -69,7 +69,7 @@ python3 -I page/build_page.py [--no-audio]                      # build/page (th
 node witnesses/behaviour.mjs --world build/worlds/ode.x3d       # and turca
 node witnesses/eyes.mjs --world build/worlds/ode.x3d --out build/stills/eyes-ode
 node witnesses/page_test.mjs && node witnesses/hover_test.mjs && node witnesses/report_test.mjs && node witnesses/host.mjs
-python3 -I witnesses/receipts.py check receipts/p3-worlds.json
+python3 -I witnesses/receipts.py check receipts/p4-worlds.json     # P3's own receipt (receipts/p3-worlds.json) is kept as the record of that run and reports STALE since P4 (D-039)
 ```
 
 CI runs all of it in the `page` job, after the audio job has rendered the masters and encoded them. The private preview is built with `LOOM_HOST_API=<name of the host's runtime object> python3 -I page/build_page.py --no-audio` (the name is not in the source, D-029); without it the report is off.

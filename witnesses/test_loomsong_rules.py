@@ -57,6 +57,23 @@ class Rules(unittest.TestCase):
         unset = NEAREST.replace(" generateMipMaps='false'", "")
         self.assertEqual(rules(doc(shader_with_texture(unset))), ["data-texture-nearest"])
 
+    def test_a_picture_a_shader_reads_may_filter_but_data_may_not(self):
+        def with_image(defname, props, tag="ImageTexture", extra=""):
+            return ("<ScalarInterpolator DEF='SecondsBus' key='0 1' keyValue='0 10'/>"
+                    "<ComposedShader DEF='Sh' language='GLSL'><field name='u_time' type='SFFloat' accessType='inputOutput' value='0'/>"
+                    "<field name='u_motifs' type='SFNode' accessType='inputOutput'><%s%s url='\"art/a.jpg\"'%s>%s</%s></field></ComposedShader>"
+                    "<ROUTE fromNode='SecondsBus' fromField='value_changed' toNode='Sh' toField='u_time'/>" % (tag, (" DEF='%s'" % defname) if defname else "", extra, props, tag))
+        mip = "<TextureProperties containerField='textureProperties' generateMipMaps='true' magnificationFilter='AVG_PIXEL' minificationFilter='AVG_PIXEL_AVG_MIPMAP'/>"
+        self.assertEqual(rules(doc(with_image("Pic_motifs", mip))), [])                                     # named a picture: filtering is the point
+        self.assertEqual(rules(doc(with_image("Pic_motifs", ""))), [])
+        self.assertEqual(rules(doc(with_image("Tex_motifs", mip))), ["data-texture-nearest"])               # an image not named a picture is judged as data
+        self.assertEqual(rules(doc(with_image(None, mip))), ["data-texture-nearest"])
+        px = ("<ScalarInterpolator DEF='SecondsBus' key='0 1' keyValue='0 10'/>"
+              "<ComposedShader DEF='Sh' language='GLSL'><field name='u_time' type='SFFloat' accessType='inputOutput' value='0'/>"
+              "<field name='u_events' type='SFNode' accessType='inputOutput'><PixelTexture DEF='Pic_events' image='1 1 4 0x000000FF'>%s</PixelTexture></field></ComposedShader>"
+              "<ROUTE fromNode='SecondsBus' fromField='value_changed' toNode='Sh' toField='u_time'/>" % mip)
+        self.assertEqual(rules(doc(px)), ["data-texture-nearest"])                                          # a PixelTexture is data whatever it is called
+
     def test_data_texture_rule_ignores_pictures(self):
         pic = ("<Shape><Appearance><ImageTexture url='\"a.png\"'/></Appearance></Shape>")
         self.assertEqual(rules(doc(pic)), [])                           # a texture in the Appearance slot is a picture, not data

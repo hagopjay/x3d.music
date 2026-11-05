@@ -7,6 +7,7 @@
  *   policy      what the host lets the page do: WebAssembly compile, a blob worker
  *   pieces      seconds from asking for a world to having it, and the clock's mode (webaudio = the .mp4 master decoded; element = it did not) with its latencies
  *   play        frame times while a piece plays: median and 1 % low in frames a second, frames over 33 and 50 ms. The Fps witness on a real graphics card
+ *   cards       where the build shipped animated cards: for each, whether its video loaded, plays, or failed (the media error code); shows whether the host plays video at all
  *   violations  what the host's content policy refused;  pageErrors, errors  what the page threw
  *   log         the first 60 things that happened, with seconds since the page opened
  * No names, no addresses, no pointer or key data. Writes go one at a time, on a real change (a piece ready, play, pause, end, the page hidden) and once a minute while playing.
@@ -154,6 +155,7 @@
     Object.keys(this.stats).forEach(function (id) { if (self.stats[id].n) d.play[id] = self.stats[id].summary(); });
     d.errors = this.app.errors.slice(0, 20).map(function (e) { return str(e, 160); });
     try { var f = this.app.browser && this.app.browser.currentFrameRate; if (typeof f === 'number' && isFinite(f)) d.xiteFps = round(f, 1); } catch (e) { /* no such reading */ }
+    try { if (this.app.cards && this.app.cards.on) d.cards = this.app.cards.status(); } catch (e) { /* no cards */ }       // whether the host plays the cards' video: ready state, playing, error code
     d.updatedAt = new Date().toISOString();
     d.pageSeconds = round((now() - this.t0) / 1000, 1);
     return d;

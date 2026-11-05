@@ -210,7 +210,11 @@
     this.emit('frame', t, perf);
   };
 
-  LoomApp.prototype.play = function () { return this.clock.play().then(function () { return true; }); };
+  /** Play. From the piece's first moment it also says "opening", which the cards (page/cards.js) answer with the piece's opening picture; the clock never waits for them. */
+  LoomApp.prototype.play = function () {
+    var self = this, fresh = !this.clock.playing && this.clock.now() < 0.05 && !!this.piece;
+    return this.clock.play().then(function () { if (fresh) self.emit('opening', self.piece); return true; });
+  };
   LoomApp.prototype.pause = function () { this.clock.pause(); };
   LoomApp.prototype.toggle = function () { var self = this; return Promise.resolve(this.clock.toggle()).then(function () { self.emit('state', self.clock.playing); }); };
   LoomApp.prototype.seek = function (t) { return this.clock.seek(t); };

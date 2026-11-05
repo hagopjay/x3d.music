@@ -7,9 +7,9 @@ import { ROOT, abortedAfterServed } from './stage.mjs';
 
 export const PAGE = path.join(ROOT, 'build', 'page');
 
-export async function openPage({ manual = true, size = [1280, 720], hash = '', csp = undefined, init = undefined, query = '' } = {}) {
+export async function openPage({ manual = true, size = [1280, 720], hash = '', csp = undefined, init = undefined, query = '', without = null } = {}) {
   const manifest = JSON.parse(fs.readFileSync(path.join(PAGE, 'manifest.json'), 'utf8'));
-  const published = new Set(manifest.files.map(f => f.path));
+  const published = new Set(manifest.files.map(f => f.path).filter(f => !(without && without.test(f))));        // without: a pattern for files the server leaves out, to see the page cope
   const srv = await startServer({ root: PAGE, published, ...(csp ? { csp } : {}) });
   const L = await launch();
   const context = await L.browser.newContext({ viewport: { width: size[0], height: size[1] }, deviceScaleFactor: 1 });

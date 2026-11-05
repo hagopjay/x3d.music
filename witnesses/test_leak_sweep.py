@@ -78,3 +78,66 @@ def test_graphics_words_are_not_vendor_names():
     # "vertex" is a GPU term (vertex shader, per-vertex attribute); only the cloud product name is a leak
     assert run({"s.md": "A vertex shader reads per-vertex attributes; ShaderPart type VERTEX.\n"})["clean"]
     assert "vendor-name" in rules(run({"s.md": J(["Ver", "tex ", "AI", " endpoint"])}))
+
+
+# ---- images: pixels and our own label only ----------------------------------------------------------------------------------------------------------------
+def _img_bytes(fmt, **kw):
+    import io
+    from PIL import Image
+    buf = io.BytesIO()
+    Image.new("RGB", (8, 8), (30, 60, 120)).save(buf, fmt, **kw)
+    return buf.getvalue()
+
+
+def _png_with(chunk_type, body):
+    """A valid PNG with one extra chunk inserted before IEND (the crc is not checked by the sweep)."""
+    import struct
+    data = _img_bytes("PNG")
+    iend = data.rfind(b"IEND") - 4
+    return data[:iend] + struct.pack(">I", len(body)) + chunk_type + body + b"\0\0\0\0" + data[iend:]
+
+
+def _img_hits(name, data):
+    return ls.scan_image(name, data)
+
+
+def test_a_plain_png_and_jpeg_pass():
+    assert not _img_hits("a.png", _img_bytes("PNG"))
+    assert not _img_hits("a.jpg", _img_bytes("JPEG"))
+
+
+def test_our_label_passes_and_nothing_else_does():
+    from PIL import PngImagePlugin
+    info = PngImagePlugin.PngInfo()
+    info.add_text("Comment", "AI-made: a generated picture")
+    assert not _img_hits("a.png", _img_bytes("PNG", pnginfo=info))
+    assert not _img_hits("a.jpg", _img_bytes("JPEG", comment=b"AI-made: a generated picture"))
+    other = PngImagePlugin.PngInfo()
+    other.add_text("Comment", "made by something else")
+    assert _img_hits("a.png", _img_bytes("PNG", pnginfo=other))
+    assert _img_hits("a.jpg", _img_bytes("JPEG", comment=b"Lavc60.31.102"))
+
+
+def test_metadata_containers_are_found():
+    for t in (b"iTXt", b"eXIf", b"caBX", b"zTXt", b"iCCP"):
+        h = _img_hits("x.png", _png_with(t, b"x" * 12))
+        assert h and h[0]["rule"] == "image-metadata", t
+    assert _img_hits("x.jpg", _img_bytes("JPEG", exif=b"Exif\0\0MM\0*\0\0\0\x08\0\0"))           # APP1
+    assert _img_hits("x.jpg", _img_bytes("JPEG", icc_profile=b"\0" * 64))                         # APP2
+
+
+def test_trailing_bytes_and_truncation_are_found():
+    assert _img_hits("x.png", _img_bytes("PNG") + b"hidden")
+    assert _img_hits("x.jpg", _img_bytes("JPEG") + b"hidden")
+    assert _img_hits("x.png", _img_bytes("PNG")[:-12])
+    assert _img_hits("x.jpg", b"not an image")
+
+
+def test_the_walk_scans_images_in_a_tree():
+    with tempfile.TemporaryDirectory() as d:
+        os.makedirs(os.path.join(d, "art"))
+        open(os.path.join(d, "art", "ok.png"), "wb").write(_img_bytes("PNG"))
+        assert ls.sweep(d)["clean"]
+        open(os.path.join(d, "art", "bad.png"), "wb").write(_png_with(b"iTXt", b"xmp"))
+        r = ls.sweep(d)
+        assert not r["clean"] and rules(r) == ["image-metadata"] and r["hits"][0]["file"].endswith("bad.png")

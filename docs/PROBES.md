@@ -103,10 +103,36 @@ No paid call was made in P0. If the project owner enables the newer API for the 
 | F9 | A pose set on a bound `Viewpoint` shows at once | Without a bind, yes: the pick under the camera was exactly under it in 4 of 4 floor looks. Re-sending `set_bind = true` to the same, already bound, viewpoint starts the `NavigationInfo` transition (X3D's default is one second, LINEAR; the worlds keep it) and the pointer's pick reads the old pose until it ends: with `transitionType` TELEPORT it was exact in 4 of 4 as well. The page's rig binds once per grab, so it is not affected (D-028) | C, a scratch script of four floor looks in three variants |
 | F10 | A host's content policy can be read from inside the page | Yes, to the extent the page can try: `page/report.js` compiles an empty WebAssembly module, starts a blob worker and listens for `securitypolicyviolation`, and writes the answers to the page's own store (D-029). Under the strict policy copy it read `CompileError` for WebAssembly, `ok` for the blob worker and two `script-src` refusals (the probe's and X_ITE's tangent generator's). The real host's answers arrive when the preview is opened there | C under the copy, S for the host |
 
+## H. Generated media in the worlds (P4)
+
+| Id | Claim | Observed | Grade |
+|---|---|---|---|
+| H1 | The second video family makes the clips the spec asks for | Yes: image-to-video and text-to-video, 8 s, 16:9, video only. Drafts at 720p took 64 to 79 s each and are 3.2 to 12.3 MB; four finals at 1080p took 113 to 132 s each and are 26.8 to 35.8 MB (too big for a page: `tools/prep_cards.py` re-encodes each to 3 to 6 MB at 1600 px wide, H.264, no sound) | C, the files and the private run ledger |
+| H2 | A generated clip of a still room can be given camera poses (the Pose witness) | Yes, all three backdrops: COLMAP with sequential matching, an overlap of 12 and the initial triangulation angle lowered to 3 degrees (a slow dolly has little parallax; the default was not compared) registered 48 of 48 sampled frames in the best model each time (it found two models in the first and the third); mean reprojection error 0.57, 0.48 and 0.55 px; median point error 0.455, 0.379 and 0.412 px; 30,251, 20,485 and 8,659 points. The spec's bars are 90 % registered and under 1 px | C, private run logs; the bars met |
+| H3 | Whether the clips become photoreal splat worlds | Not known: training and the Fidelity witness (PSNR at least 22 dB, SSIM at least 0.75 on held-out frames) need the GPU machine, which is stopped (D-038). The training input is built and uploaded | S |
+| H4 | Where an `ImageTexture`'s first row is in X_ITE 16.5.1 | At texture coordinate v = 0, the opposite of the X3D text: the dome's first atlas lookup showed the top and bottom rows of motifs swapped until the lookup counted rows from the top (D-033) | C, the Atlas witness, with a mutation check |
+| H5 | A shader can tell that its picture has not arrived | Yes: an `ImageTexture` that has not loaded or has failed reads as alpha 0 in a custom shader; the dome keeps its procedural tiles for any texel whose alpha is not 1, and with the picture missing the world is still lit, the only thing the console reports being the failed request | C, the Atlas witness |
+| H6 | A mirrored lookup into a 4 by 3 atlas puts each motif on screen as it is in the file | Yes under mipmaps and anisotropy 8: on a 7 by 7 grid of small windows the twelve cells differ from their own tiles by 2.2 of 255 on average (worst tile 4.6), against 9.2 flipped top to bottom, 4.1 flipped left to right (many motifs are mirror symmetric) and 9.0 turned half way; the worst cell is at 0.10 of the nearest other motif's difference | C, the Atlas witness (it needs worst tile under 22, identity under 0.5, orientation under 0.5) |
+| H7 | A custom shader can sample an `ImageTexture` under the strict policy copy | Yes: the picture is served from the page's own files (img-src 'self'), 200, no violation | C, Atlas, Behaviour, Host |
+| H8 | A muted `<video>` with a poster plays under the strict policy copy (media-src 'self') and the music does not wait for it | Yes in headless Chrome: the title card reached ready state 4 and played, an opening covered the world while the clock ran, and with the video files withheld the poster showed and only the failed requests were reported. The real host's behaviour is read from the preview's report (`cards` in `reports/<id>`) | C under the copy, S on the real host |
+| H9 | Re-encoding strips a generated clip's metadata | Yes, in two steps: the encode drops every tag of the source and every SEI unit (the encoder's settings line is one), then a copy into a fresh container drops the encoder string the encoder writes into its own stream. The originals carry an encoder string of their maker; a card carries the container's own brand and handler names and our one comment ("AI-made: ..."), and nothing else (a first attempt with the encoder's own flags left both the string and the settings line; the test now looks for them). The posters are rebuilt from pixels and pass the sweep's image rule | C, `ffprobe`, `strings`, `witnesses/test_cards_media.py` |
+
+## I. The private preview on a real machine (P3's page, one report read on 5 Nov 2026)
+
+The preview of 2 Nov (the P3 page: no generated pictures, no cards) wrote one report on 3 Nov when it was opened. It is one machine, one window and one session, so each line says which.
+
+| Id | Question | Observed | Grade |
+|---|---|---|---|
+| I1 | Does the real host let WebAssembly compile and blob workers run? | Yes: both read ok; the report lists no policy violation and no page error | C, one report |
+| I2 | Does the page hold a frame rate on a real GPU? | On Windows with Chrome 156 and an Intel UHD 620 integrated GPU (ANGLE over Direct3D 11), in a window of 1105 by 576 at a device pixel ratio of 1.1: the Ode played 42 s at a median 59.7 frames a second (1 % low 58.8, none over 33 ms), the Turca 73.2 s at a median 59.7 (1 % low 58.0, 2 of 4,363 frames over 33 ms, none over 50 ms); X_ITE's own meter read 58.8 | C for that machine and window; S for a larger window or another machine |
+| I3 | Does the AAC master decode and the audio clock run there? | Yes: mode `webaudio`, state running, 48,000 Hz, base latency 10 ms, output latency 48 ms; the decoded buffers are 215.877 s and 218.857 s, the masters' lengths | C, one report |
+| I4 | How long until a piece is ready? | 4.4 s (Ode) and 4.8 s (Turca) after it was asked for | C, one report |
+| I5 | What did this report not see? | The generated pictures, the dome's atlas and the cards (the page it read predates them), Safari, Firefox, a phone, and how it sounds and looks to a person | S |
+
 ## Still S after P0
 
 - Decode and playback in Safari and Firefox; audio latency on real devices.
-- Frame rate on a real GPU (Fps witness, cloud GPU).
-- The real host's policy: WebAssembly compile, blob workers, AAC decode, WebGL2. The first stop-and-show page carries a self-test that reports them (D-004).
+- Frame rate on other machines and in a larger window (one real report is in section I; the Fps witness proper needs a defined machine).
+- The real host's policy for a *new* thing: WebAssembly compile, blob workers, AAC decode and WebGL2 are answered by section I; video playback in the cards is not (the preview must be opened with them).
 - X_ITE splat budgets at scale (1.5 M splats per world): P4. Draw calls and triangles were measured in P3 and both worlds are far under (`P3-WORLDS.md`).
 - The output of the fallback video family.

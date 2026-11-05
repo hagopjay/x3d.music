@@ -4,19 +4,26 @@
 "Freude, schöner Götterfunken": a radiant spark rising over a landscape, with linked silhouettes along the horizon. No faces, no text. Every cell is one of five threads or the bare linen:
     1 indigo (the dark: sky, ground, silhouettes)   laid by statement 1     2 silver (mist, hills, far rays)   laid by statement 2
     3 gold (halo, rays, horizon glow, river)        laid by statement 3     4 ivory (core, star, stars, ripples) and 5 crimson (warp accents) laid by statement 4
-and a tone 0..31 that the shader turns into how bright the thread sits. A cell byte is  code | tone << 3  (code in bits 0 to 2). A later stage can swap in a generated candidate by
-quantising it to the same five classes (quantize()); until then this procedural picture stands in (spec fallback), so the world never waits on a paid image.
+and a tone 0..31 that the shader turns into how bright the thread sits. A cell byte is  code | tone << 3  (code in bits 0 to 2).
+Two sources, one set of cell bytes. The picture can be an AI-made image (art/ode-tapestry.png, listed in art/manifest.json), woven by quantize(): every cell takes the thread whose colour
+(lit by how bright it sits) fits the pixel best. Or it is this file's own procedural picture, the stand-in the world was first built with and the fallback whenever the image is missing,
+altered or switched off (gen/artlib.py says which, and why). The warp's crimson accents are the loom's own and are laid over either picture (accents()).
 Deterministic: fixed seeds, no clocks.
 """
-import math
+import math, os, sys
 import numpy as np
 from PIL import Image
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import artlib                                   # noqa: E402
 
 CW, CH = 256, 384
 SS = 3
 LINEN, INDIGO, SILVER, GOLD, IVORY, CRIMSON = range(6)
 NAMES = ["linen", "indigo", "silver", "gold", "ivory", "crimson"]
 PALETTE = [(222, 210, 184), (44, 52, 142), (196, 204, 220), (238, 184, 74), (248, 240, 218), (204, 34, 52)]
+INK = [(62, 74, 178), (204, 212, 228), (246, 192, 82), (250, 244, 226), (224, 42, 62)]       # ink() in shaders/ode_lib.glsl: indigo, silver, gold, ivory, crimson (sRGB bytes)
+LO, HI = 0.32, 1.15                                                                         # the weave's brightness range, mix(LO, HI, tone) in shaders/tapestry_fs.glsl
 
 
 def _grids():
@@ -138,8 +145,38 @@ def build():
     return L
 
 
-def cells(L=None):
-    """(384, 256) uint8: the class and tone of every cell, by majority vote over the supersampled pixels."""
+def cells(L=None, source=None):
+    """(384, 256) uint8: the class and tone of every cell. source: "ai" or "procedural"; by default what art/manifest.json and LOOM_ART ask for, if the image is intact (artlib.status)."""
+    src = source or artlib.use("ode-tapestry")
+    if src == "ai" and L is None:
+        return cells_from_art()
+    return cells_procedural(L)
+
+
+def accents(foreground=True):
+    """(384, 256) bool: the warp's crimson accents, the loom's own: two border threads, and (foreground) a row of short ones under the horizon. Laid over any picture."""
+    cb = np.zeros((CH, CW), bool)
+    cb[:, 7] = True
+    cb[:, CW - 8] = True
+    if foreground:
+        rn = ridge_near(np.arange(CW) + 0.5)
+        for k in range(13):
+            cx = 20 + 18 * k
+            rows = np.arange(CH)
+            cb[(rows > rn[cx] + 18) & (rows < CH - 12), cx] = True
+    return cb
+
+
+def cells_from_art(path=None):
+    """The generated picture, woven: quantized to the threads, with the loom's two crimson border threads over it (the short foreground ones belong to the procedural picture's own composition)."""
+    rgb = np.asarray(Image.open(path or artlib.path("ode-tapestry")).convert("RGB"))
+    cb = quantize(rgb)
+    cb[accents(foreground=False)] = np.uint8(CRIMSON | (int(round(0.88 * 31)) << 3))
+    return cb
+
+
+def cells_procedural(L=None):
+    """The procedural picture: the class and tone of every cell, by majority vote over the supersampled pixels."""
     L = L or build()
     c = L.cls.reshape(CH, SS, CW, SS).transpose(0, 2, 1, 3).reshape(CH, CW, SS * SS)
     t = L.tone.reshape(CH, SS, CW, SS).transpose(0, 2, 1, 3).reshape(CH, CW, SS * SS)
@@ -151,23 +188,35 @@ def cells(L=None):
 
 
 def quantize(rgb):
-    """A generated candidate (H x W x 3 uint8, any size) to the same cell bytes: resize to 256 x 384, nearest of the five thread colours, tone from the distance to it."""
+    """A generated picture (H x W x 3 uint8, any size) to cell bytes: resized to 256 x 384, then each cell is fitted by thread, the way the shader will light it.
+    The shader paints thread colour x mix(LO, HI, tone) in linear light, so for each of the four threads that can be in a picture (indigo, silver, gold, ivory) the brightness s that best explains the
+    pixel is its projection on the thread's colour, held to the weave's range; the thread with the smallest leftover wins and tone is s mapped back to 0..1. A black outline is the darkest indigo,
+    a grey-blue hill is silver, a cream sky is ivory. Crimson is left to accents()."""
     im = Image.fromarray(np.asarray(rgb, np.uint8)).resize((CW, CH), Image.LANCZOS)
-    a = np.asarray(im, float)
-    pal = np.array(PALETTE[1:], float)
-    d = np.linalg.norm(a[:, :, None, :] - pal[None, None, :, :], axis=3)
-    k = d.argmin(axis=2)
-    lum = a.mean(axis=2) / 255.0
-    return ((k + 1).astype(np.uint8) | (np.clip(np.round(lum * 31), 0, 31).astype(np.uint8) << 3)).astype(np.uint8)
+    lin = (np.asarray(im, np.float64) / 255.0) ** 2.2
+    inks = (np.array(INK[:4], np.float64) / 255.0) ** 2.2
+    best_err = np.full((CH, CW), np.inf)
+    best_k = np.zeros((CH, CW), np.uint8)
+    best_s = np.zeros((CH, CW))
+    for k in range(4):
+        c = inks[k]
+        s = np.clip((lin @ c) / (c @ c), LO, HI)
+        err = ((lin - s[:, :, None] * c[None, None, :]) ** 2).sum(axis=2)
+        better = err < best_err
+        best_err = np.where(better, err, best_err)
+        best_k = np.where(better, k + 1, best_k).astype(np.uint8)
+        best_s = np.where(better, s, best_s)
+    tone = np.clip(np.round((best_s - LO) / (HI - LO) * 31), 0, 31).astype(np.uint8)
+    return (best_k | (tone << 3)).astype(np.uint8)
 
 
 def preview(path, cell_bytes=None, scale=2):
-    """The picture as the finished tapestry would look with every thread laid, as a PNG."""
+    """The picture as the finished tapestry would look with every thread laid (the shader's thread colour times its brightness, in linear light, then gamma), as a PNG."""
     cb = cells() if cell_bytes is None else cell_bytes
     cls, tone = (cb & 7).astype(int), (cb >> 3) / 31.0
-    pal = np.array(PALETTE, float)
-    img = pal[cls] * (0.35 + 0.85 * tone[:, :, None])
-    img = np.clip(img, 0, 255).astype(np.uint8)
+    lin = (np.array([PALETTE[0]] + INK, float) / 255.0) ** 2.2
+    img = lin[cls] * np.where(cls[:, :, None] == 0, 0.3, (LO + (HI - LO) * tone[:, :, None]) * 0.8)
+    img = np.clip(np.clip(img, 0, 1) ** (1 / 2.2) * 255, 0, 255).astype(np.uint8)
     Image.fromarray(img).resize((CW * scale, CH * scale), Image.NEAREST).save(path)
 
 
@@ -182,6 +231,6 @@ def pack3(cb):
 if __name__ == "__main__":
     import sys
     out = sys.argv[1] if len(sys.argv) > 1 else "/tmp/ode_picture.png"
-    cb = cells()
+    cb = cells(source=sys.argv[2] if len(sys.argv) > 2 else None)
     preview(out, cb)
     print("class counts", {NAMES[k]: int(((cb & 7) == k).sum()) for k in range(6)}, "->", out)

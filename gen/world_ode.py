@@ -24,6 +24,7 @@ import worldlib as W                                                        # no
 from worldlib import N, mf, num, route, Card, EventTable, Shot, World       # noqa: E402
 from worldlib import TAU, X_AXIS, Y_AXIS, Z_AXIS, lin, vec, lerp3, orbit    # noqa: E402,F401
 import picture_ode as PIC                                                   # noqa: E402
+import artlib                                                               # noqa: E402
 
 # ---- layout ---------------------------------------------------------------------------------------
 ROWS, COLS = PIC.CH, PIC.CW
@@ -508,7 +509,8 @@ def build(out=None):
                  hash=[[x, y, owner_hash(x, y)] for x, y in ((0, 0), (1, 0), (0, 1), (17, 5), (255, 383), (128, 192), (100, 300), (3, 77))],
                  tap=dict(x0=-TAP_W / 2, w=TAP_W, top=TAP_TOP, h=TAP_H, cols=COLS, rows=ROWS), sweep=[[round(x, 4) for x in a_], [round(x, 4) for x in b_]], card_p=CARD_P,
                  hole_rects=[[round(x0, 4), round(x1, 4), round(yc, 4), li] for x0, x1, yc, li in hole_layout(card)], lanes=LANES, intangible=list(w.intangible))
-    extra = dict(notes=len(card.notes), composer_notes=len(comp), cards=int(card.total_q), cells=ROWS * COLS, layers=[L["name"] for L in LAYERS], shots=len(shots))
+    art_use, art_why = artlib.status("ode-tapestry")
+    extra = dict(notes=len(card.notes), composer_notes=len(comp), cards=int(card.total_q), cells=ROWS * COLS, layers=[L["name"] for L in LAYERS], shots=len(shots), art=dict(ode_tapestry=art_use, why=art_why))
     rep = W.write_world(w, "Ode to Joy: the Jacquard tapestry", "Every note is a hole in the card chain, and each statement of the theme weaves one colour of the picture.", extra, background=(0.0, 0.0, 0.01), out=out)
     import json
     with open(os.path.join(out or W.OUT, "ode.map.json"), "w", encoding="utf-8", newline="\n") as f:
@@ -517,6 +519,6 @@ def build(out=None):
 
 
 if __name__ == "__main__":
-    r = build()
+    r = build(os.path.abspath(sys.argv[sys.argv.index("--out") + 1]) if "--out" in sys.argv else None)          # --out DIR: a second build somewhere else (CI builds the stand-ins beside the pictures)
     print({k: v for k, v in r.items() if k not in ("tables", "layers")})
     print("tables", r["tables"])

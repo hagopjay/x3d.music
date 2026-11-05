@@ -257,5 +257,5 @@
    "bytes": 689
   }
  ],
- "note": "The worlds are bit-identical on the machine class that made them (numpy and Pillow do the geometry and the picture; another CPU may differ in the last bit, S). CI judges the worlds by the witnesses (the gate, Behaviour, Eyes, the page, hover and Host), not by these hashes, and prints them in the page job so a match can be seen (D-023)."
+ "note": "The worlds are bit-identical on the machine class that made them (numpy and Pillow do the geometry and the picture; another CPU may differ in the last bit, S). CI judges the worlds by the witnesses (the gate, Behaviour, Eyes, the page, hover and Host), not by these hashes, and prints them in the page job so a match can be seen (D-023). Superseded by receipts/p4-worlds.json (D-039): P4 changed the generators and the dome's shader on purpose, so a check of this file reports STALE; it is kept as the record of the P3 run."
 }
