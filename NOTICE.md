@@ -14,6 +14,8 @@ Which folder carries which licence, and who must be credited. The leak sweep and
 | Audio made from the Turca card | CC BY-NC-SA 4.0 (the row above), and the piano's credit below travels with it | The piano is a recorded instrument; every other voice is synthesised |
 | `art/` (the generated pictures the worlds can use, and `art/manifest.json`) | CC BY 4.0, as a default | AI-made, rebuilt from their pixels alone (see "AI-made material" below). The licence is the owner's to change; the default asks for credit and nothing else |
 | `docs/` | MIT | Our own text |
+| `moonlight/` code (`score/extract.py`, `lmms/`, `viz/`, `page/`, `witnesses/`) | MIT (`LICENSE`) | Our own code |
+| `moonlight/score/*.events.json`, the generated LMMS project and X3D scene, and `moonlight/media/moonlight-two-ways.v1.mp3` | Credit as below. Non-commercial until the encoder's terms are known | Derived from the encoding credited below, which states no licence at the pinned commit. The same encoder publishes his Mozart edition under CC BY-NC-SA 4.0 |
 
 Commercial use of anything derived from the *Alla Turca* score card needs a fresh hand encoding of the 1878 edition (public domain) that does not use the file credited below. That is listed as longer-term work, not done.
 
@@ -34,13 +36,22 @@ Changes made: the file is parsed to note events with exact rational onsets and d
 > Changes made: a note takes the nearest recorded key and is shifted by resampling by at most one semitone, the two layers either side of its velocity are blended, the start is trimmed to where the level first passes minus 50 dB under the recording's peak, and a release is added when the key goes up. The result is mixed with synthesised instruments, so what is heard is AI-made audio, not a recording of anyone playing the piece.
 > The credit is in the metadata of every master file and on the listening page.
 
+**Beethoven, Piano Sonata No. 14 in C♯ minor, Op. 27 No. 2, "Moonlight"** (1801). The composition and the Durand edition (1915, ed. Paul Dukas) are in the public domain. The digital encoding used for proof of concept 2 is:
+
+> Craig Stuart Sapp, Humdrum edition of the Beethoven piano sonatas, https://github.com/craigsapp/beethoven-piano-sonatas, files `kern/sonata14-1.krn` and `kern/sonata14-3.krn` at commit `2d6627b` (sha256 in `moonlight/score/sources.json`). No licence is stated at that commit; the files are not copied here.
+
+Changes made: bars 1 to 9 of the first movement and bars 1 to 64 and 191 to 201 of the third are parsed to note events (grace notes dropped, ties joined). The written notes are played unchanged by the piano track, and an arrangement layer derived from them by rule is added (arpeggio synths, choir, strings, brass, timpani, bass, drums). The arrangement and mix are AI-made, and the page says so.
+
+**FluidR3_GM SoundFont** (Frank Wen), as packaged by Debian (`fluid-soundfont-gm`), MIT. It plays the piano, choir, strings, brass and timpani in the v1 master; it is not shipped here. **LMMS** (GPL-2.0-or-later) rendered the master. Its factory drum samples (`drums/snare_electro01.ogg`, `hihat_closed02.ogg`, `hihat_opened02.ogg`, `crash01.ogg`) are heard in it and travel under LMMS's licence.
+
 ## Samples and tools
 
 Listed as they are added. A sample library is named here with its licence and the commit or hash it was taken at before any audio made from it is published.
 
 | Item | Use | Licence |
 |---|---|---|
-| X_ITE 16.5.1 | The X3D browser, shipped as the page's own files | MIT |
+| X_ITE 16.5.1 | The X3D browser, shipped as the page's own files (both proofs of concept) | MIT |
+| LMMS 1.3.0-alpha (master `5ba6744`) | Rendered the Moonlight master; not shipped | GPL-2.0-or-later |
 | music21 10.5.2 | The Score witness's second parser (not used by the builders, not shipped) | BSD-3-Clause |
 | pedalboard 0.9.26 | Effects and the master chain (P2) | GPL-3.0 (its package metadata). Installed from PyPI, never vendored or shipped here |
 | DawDreamer 0.9.0, with the Faust compiler | Plays the Faust voices (P2) | GPL-3.0 (its package metadata). Installed from PyPI, never vendored or shipped here |
