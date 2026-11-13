@@ -7,6 +7,10 @@ Two programmable machines play two pieces of music.
 
 Every thread, pin, tile and light is a real note from the score. Nothing is drawn that is not in the score, and no note in the score goes undrawn.
 
+## Proof of concept 2: *Moonlight // Two Ways*
+
+Beethoven's Op. 27 No. 2, from the Adagio into the Presto agitato, is produced in LMMS and shown in X3D. The LMMS project file is XML, and one XSLT stylesheet turns it into the scene, so every box is a note in the project. It is published with GitHub Pages at `/moonlight/`. See `moonlight/README.md`.
+
 ## One generator, three outputs
 
 ```
@@ -56,6 +60,7 @@ witnesses/  the checks above
 receipts/   one Loom Receipt per artifact
 runs/       per-run witness results
 docs/       FACTS.md, DECISIONS.md, PROMPTS.md, PROBES.md (and p0/, the raw probe record), P1-SCORES.md, SCORE-SCHEMA.md, HARMONY.md, MIX.md, P2-AUDIO.md, P3-WORLDS.md, P4-MEDIA.md
+moonlight/  proof of concept 2: event lists, the LMMS project generator, the XSLT, the page, its witnesses and the v1 master
 tools/      pins.json (every checker pinned), fetch_xite.py, prep_art.py and prep_cards.py (generated pictures and clips into art/ and the page's cards)
 build/      outputs (git-ignored)
 ```
@@ -71,7 +76,7 @@ build/      outputs (git-ignored)
 | P4 | Generated media | built in part: the Ode's tapestry is woven from a generated picture, the Turca's dome is tiled with twelve generated motifs, and four animated cards frame the pieces, each labelled AI-made and each prompt in `docs/PROMPTS.md`; every world still builds and passes without them. The three backdrops pass the Pose witness but are not in a world yet (photoreal splats wait for the GPU machine); nobody has looked at it on a real screen (`docs/P4-MEDIA.md`) |
 | P5 | Improvement rounds | not started |
 | P6 | The films | not started |
-| P7 | Publish | not started |
+| P7 | Publish | not started for Loomsong; the Pages workflow (`.github/workflows/pages.yml`) already publishes proof of concept 2 |
 
 ## Licences
 

@@ -1,0 +1,71 @@
+name: pages
+
+# Publishes the static site to GitHub Pages: a landing page at the root and proof of concept 2,
+# Moonlight // Two Ways, at /moonlight/. Loomsong joins at its own P7.
+# One-time setting: Settings > Pages > Build and deployment > Source: "GitHub Actions".
+# The site is built from the generators (the receipt must match) and smoke-tested in headless Chrome before it ships.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'moonlight/**'
+      - 'tools/fetch_xite.py'
+      - 'tools/pins.json'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  SOURCE_DATE_EPOCH: '1793491200'
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -r requirements.txt
+      - name: Fetch the pinned X_ITE (sha512 checked)
+        run: python3 -I tools/fetch_xite.py
+      - name: Build the site (project and scene regenerated; the receipt must match)
+        run: python3 -I moonlight/page/build_page.py --out build/pages
+      - name: Moonlight witnesses (score, project, scene, clock)
+        run: python3 -I -m pytest -q moonlight/witnesses
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Page smoke (loads, transforms, plays, moves; and loads without XSLT)
+        run: node moonlight/witnesses/page_smoke.mjs --site build/pages --out build/runs/moonlight
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: moonlight-smoke
+          path: build/runs/moonlight
+          retention-days: 14
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

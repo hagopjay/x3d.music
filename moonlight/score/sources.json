@@ -1,0 +1,16 @@
+{
+  "_note": "The two kern files the event lists were extracted from. Not committed here: tools fetch them at the pinned commit and check the sha256.",
+  "repo": "https://github.com/craigsapp/beethoven-piano-sonatas",
+  "commit": "2d6627b8a2b085145b2be48e640fbb993771542b",
+  "files": {
+    "kern/sonata14-1.krn": "148db8c1d41c78cad44a12dfbd4c1351a2ec68dc9429501fb4b11a64b831cf8f",
+    "kern/sonata14-3.krn": "8dfc2577244572ba686d565e1dc54d8b1bc502b4f9b463d0953812b0d2cc5be4"
+  },
+  "excerpts": {
+    "adagio.events.json":         {"file": "kern/sonata14-1.krn", "bars": [1, 9]},
+    "presto-1-64.events.json":    {"file": "kern/sonata14-3.krn", "bars": [1, 64]},
+    "presto-191-201.events.json": {"file": "kern/sonata14-3.krn", "bars": [191, 201]}
+  },
+  "edition": "Durand 1915 (ed. Paul Dukas), encoded by Craig Stuart Sapp",
+  "licence": "none stated in the repository at this commit; see NOTICE.md"
+}

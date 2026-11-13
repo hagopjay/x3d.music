@@ -2,6 +2,7 @@ name: ci
 
 # Witnesses that run on every commit: the leak sweep and unit tests (sweep job); the Score witness and the score receipt (score job); the audio unit tests, the mutation spot-check, a fresh render of both masters and the Ear witness (audio job);
 # Grammar, Meaning, Traps, Receipts and the browser probes (worlds job); the world generators' tests, the gate on both worlds and on their stand-ins without the generated pictures, Behaviour and Eyes on both sets, the Atlas witness, the page, hover, report and Cards tests (with test-pattern cards) and the Host witness (page job, after audio).
+# Proof of concept 2, Moonlight: receipt, witnesses and the page smoke (moonlight job).
 # The rest join as their phases land. Every checker is pinned in tools/pins.json; the pins are read from there, not repeated here.
 
 # Pull requests are checked once (the merge result); main is checked after every merge. A branch push alone does not start a second, duplicate run.
@@ -162,6 +163,38 @@ jobs:
         with:
           name: p0-run
           path: build/runs
+          retention-days: 14
+
+  moonlight:
+    # Proof of concept 2: the LMMS project and the X3D scene are regenerated and must equal the receipt; the score, project,
+    # scene and clock witnesses run; the built page is smoke-tested in headless Chrome, with and without XSLT.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -r requirements-score.txt
+      - name: Fetch the pinned X_ITE (sha512 checked)
+        run: python3 -I tools/fetch_xite.py
+      - name: Build the Moonlight page (receipt check)
+        run: python3 -I moonlight/page/build_page.py --out build/pages
+      - name: Moonlight witnesses (with music21, so the kern re-extraction runs too)
+        run: python3 -I -m pytest -q moonlight/witnesses
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Page smoke
+        run: node moonlight/witnesses/page_smoke.mjs --site build/pages --out build/runs/moonlight
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: moonlight-run
+          path: build/runs/moonlight
           retention-days: 14
 
   page:
