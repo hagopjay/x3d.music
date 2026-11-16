@@ -59,7 +59,7 @@ blender/    film scripts
 witnesses/  the checks above
 receipts/   one Loom Receipt per artifact
 runs/       per-run witness results
-docs/       FACTS.md, DECISIONS.md, PROMPTS.md, PROBES.md (and p0/, the raw probe record), P1-SCORES.md, SCORE-SCHEMA.md, HARMONY.md, MIX.md, P2-AUDIO.md, P3-WORLDS.md, P4-MEDIA.md
+docs/       FACTS.md, DECISIONS.md, PROMPTS.md, PROBES.md (and p0/, the raw probe record), P1-SCORES.md, SCORE-SCHEMA.md, HARMONY.md, MIX.md, P2-AUDIO.md, P3-WORLDS.md, P4-MEDIA.md, LINEAGE.md
 moonlight/  proof of concept 2: event lists, the LMMS project generator, the XSLT, the page, its witnesses and the v1 master
 tools/      pins.json (every checker pinned), fetch_xite.py, prep_art.py and prep_cards.py (generated pictures and clips into art/ and the page's cards)
 build/      outputs (git-ignored)
